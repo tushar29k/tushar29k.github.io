@@ -25,7 +25,7 @@
   <div class="links">
     <a href="#projects">Projects</a>
     <a href="#stack">Stack</a>
-    <a href="#journey">Journey</a>
+    <a href="#experience">Experience</a>
     <a href="#about">About</a>
     <a href="#contact" class="cta">Contact</a>
   </div>
@@ -62,7 +62,7 @@
 
 <section class="section" id="projects">
   <h2>Projects <span class="jp">作品</span></h2>
-  <p class="sub">Open-source systems I design, build and measure. Every one ships with evals.</p>
+  <p class="sub">Open-source systems I design, build and measure. Every one ships with evals — each card links the repo and a live demo.</p>
   <div class="grid" id="project-grid">
     <div class="card skeleton" aria-hidden="true"><div class="sk-line sk-title"></div><div class="sk-line"></div><div class="sk-line short"></div></div>
     <div class="card skeleton" aria-hidden="true"><div class="sk-line sk-title"></div><div class="sk-line"></div><div class="sk-line short"></div></div>
@@ -101,15 +101,20 @@
   </div>
 </section>
 
-<section class="section" id="journey">
-  <h2>Journey <span class="jp">旅路</span></h2>
+<section class="section" id="experience">
+  <h2>Experience <span class="jp">経験</span></h2>
   <p class="sub">Where I've been, and what I shipped along the way.</p>
   <div class="timeline">
     <div class="t-item">
       <span class="t-dot"></span>
       <div class="t-card">
         <div class="t-head"><h3>KPMG — GenAI Analyst</h3><span class="t-when">Sep 2024 – Present · Bengaluru</span></div>
-        <p>Production GenAI: multi-agent pipelines with LangGraph, RAG over large document corpora, vector search at scale, and LoRA/QLoRA fine-tuning. Everything ships with eval harnesses — recall, faithfulness, LLM-as-judge.</p>
+        <p>I design, build and run enterprise GenAI in production — agentic AI and RAG on the Azure AI stack and Google ADK, shipped through CI/CD at 99.9% uptime across live business workflows.</p>
+        <ul class="t-list">
+          <li><strong>Agentic test-case generator</strong> — a multi-agent platform (Google ADK, Gemini 2.5 Pro/GPT, RAG + MCP control planes) that reads 10,000+ Jira requirements and drafts test cases; cut manual QA effort by 65% and made release cycles 4× faster.</li>
+          <li><strong>Resume matcher</strong> — hybrid vector search on Azure Cognitive Search + Azure OpenAI over 500K+ indexed résumés, answering queries in under 200ms; lifted match accuracy 40% and cut screening turnaround 75%.</li>
+          <li><strong>Vector search at scale</strong> — multi-agent systems with fallback protocols, serving 100K+ search queries a day at sub-second latency.</li>
+        </ul>
       </div>
     </div>
     <div class="t-item">

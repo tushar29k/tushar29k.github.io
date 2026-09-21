@@ -104,6 +104,17 @@
     { name: 'llm-service', description: 'Local LLM microservice: chat, streaming, structured extraction, latency benchmarks.', language: 'Python', stargazers_count: 0 },
     { name: 'pr-review-agent', description: 'Automated PR reviewer: deterministic checks + swappable LLM backend, CLI + API, evals.', language: 'Python', stargazers_count: 0 }
   ];
+  /* richer "what it is" blurbs for the four flagships; deployment URLs land here once live */
+  var BLURB = {
+    'rag-service': 'A document-grounded Q&A API: chunking, embeddings and a vector store behind a retrieval pipeline with recall@3 and faithfulness evals. Try it in the browser — index docs and ask questions with citations, scores and latency.',
+    'agent-service': 'A ReAct-style agent with tools, human-approval gates on destructive actions, checkpoints and a LangGraph variant. Chat with it in the browser and watch it stream thoughts and tool calls, approving risky steps yourself.',
+    'llm-service': 'An LLM microservice wrapper: streaming chat plus structured JSON extraction with pluggable backends (a mock fallback so it works anywhere). Includes latency benchmarks.',
+    'pr-review-agent': 'An automated pull-request reviewer: deterministic static checks (secrets, debug leftovers, TODOs) plus a swappable LLM backend, CLI and API. Paste a diff, get a rendered Markdown review with severity chips.'
+  };
+  /* public demo URLs — fill in once the FastAPI apps are deployed */
+  var DEMO = {
+    'rag-service': '', 'agent-service': '', 'llm-service': '', 'pr-review-agent': ''
+  };
   var LANG_COLORS = { Python: '#3572A5', 'Jupyter Notebook': '#DA5B0B', Dockerfile: '#384D54', Shell: '#89E051' };
   var ACCENTS = ['#22D3EE', '#2DD4BF', '#A78BFA', '#F472B6'];
 
@@ -122,21 +133,24 @@
       var topics = (r.topics || []).slice(0, 4).map(function (t) {
         return '<span>' + esc(t) + '</span>';
       }).join('');
-      var a = document.createElement('a');
+      var a = document.createElement('div');
       a.className = 'card';
-      a.href = r.html_url;
-      a.target = '_blank';
-      a.rel = 'noopener';
       a.style.setProperty('--accent', accent);
+      var desc = BLURB[r.name] || r.description || 'Open-source AI project.';
+      var demoUrl = DEMO[r.name];
+      var demoBtn = demoUrl
+        ? '<a class="mini-btn live" href="' + esc(demoUrl) + '" target="_blank" rel="noopener">Live demo ↗</a>'
+        : '<span class="mini-btn soon">Live demo · soon</span>';
       a.innerHTML =
         '<div class="card-top"><span class="rank" style="color:' + accent + '">' + ('0' + (idx + 1)).slice(-2) + '</span>' +
-        '<h3>' + esc(r.name) + '</h3><span class="spacer"></span>' +
+        '<h3><a class="card-title-link" href="' + esc(r.html_url) + '" target="_blank" rel="noopener">' + esc(r.name) + '</a></h3><span class="spacer"></span>' +
         '<span class="stars">★ ' + r.stargazers_count + '</span></div>' +
-        '<p>' + esc(r.description || 'Open-source AI project.') + '</p>' +
+        '<p>' + esc(desc) + '</p>' +
         (topics ? '<div class="topics">' + topics + '</div>' : '') +
         '<div class="card-meta"><span class="dot" style="background:' + color + '"></span>' +
         esc(r.language || 'Code') + '</div>' +
-        '<span class="go" style="color:' + accent + '">View on GitHub →</span>';
+        '<div class="card-links"><a class="mini-btn" href="' + esc(r.html_url) + '" target="_blank" rel="noopener">Repo ↗</a>' +
+        demoBtn + '</div>';
       grid.appendChild(a);
       io.observe(a);
     });
