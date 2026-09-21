@@ -342,9 +342,10 @@
     .then(function (repos) {
       // hide the portfolio site repo itself: it is not a project, just the frame
       var mine = repos.filter(function (r) { return !r.fork && r.name !== USER && r.name !== USER + '.github.io'; });
-      // keep the four flagships first, in a fixed order
+      // keep the four flagships first, in a fixed order; the rest go after
       var order = ['rag-service', 'agent-service', 'llm-service', 'pr-review-agent'];
-      mine.sort(function (a, b) { return order.indexOf(a.name) - order.indexOf(b.name); });
+      function rank(n) { var i = order.indexOf(n); return i === -1 ? order.length : i; }
+      mine.sort(function (a, b) { return rank(a.name) - rank(b.name); });
       renderProjects(mine.length ? mine : FALLBACK);
       setStat('st-repos', String(mine.length || FALLBACK.length));
     })

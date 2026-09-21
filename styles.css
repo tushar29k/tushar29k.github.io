@@ -313,6 +313,8 @@ footer {
   .nav { padding: 1rem; }
   .nav .links a:not(.cta) { display: none; }
   .strip { gap: 1.2rem; }
+  /* one column on phones: the 300px min track would clip on narrow screens */
+  .grid { grid-template-columns: 1fr; }
 }
 
 /* ---------- lightning divider ---------- */
