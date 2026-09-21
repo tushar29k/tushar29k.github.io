@@ -340,7 +340,8 @@
   // projects (exclude the profile repo itself)
   getJSON('https://api.github.com/users/' + USER + '/repos?per_page=100&type=owner')
     .then(function (repos) {
-      var mine = repos.filter(function (r) { return !r.fork && r.name !== USER; });
+      // hide the portfolio site repo itself: it is not a project, just the frame
+      var mine = repos.filter(function (r) { return !r.fork && r.name !== USER && r.name !== USER + '.github.io'; });
       // keep the four flagships first, in a fixed order
       var order = ['rag-service', 'agent-service', 'llm-service', 'pr-review-agent'];
       mine.sort(function (a, b) { return order.indexOf(a.name) - order.indexOf(b.name); });
