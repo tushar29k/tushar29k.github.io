@@ -74,6 +74,7 @@
     { name: 'pr-review-agent', description: 'Automated PR reviewer: deterministic checks + swappable LLM backend, CLI + API, evals.', language: 'Python', stargazers_count: 0 }
   ];
   var LANG_COLORS = { Python: '#3572A5', 'Jupyter Notebook': '#DA5B0B', Dockerfile: '#384D54', Shell: '#89E051' };
+  var ACCENTS = ['#22D3EE', '#2DD4BF', '#A78BFA', '#F472B6'];
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -84,26 +85,51 @@
   function renderProjects(repos) {
     var grid = document.getElementById('project-grid');
     grid.innerHTML = '';
-    repos.forEach(function (r) {
+    repos.forEach(function (r, idx) {
       var color = LANG_COLORS[r.language] || '#8b98a9';
+      var accent = ACCENTS[idx % ACCENTS.length];
+      var topics = (r.topics || []).slice(0, 4).map(function (t) {
+        return '<span>' + esc(t) + '</span>';
+      }).join('');
       var a = document.createElement('a');
       a.className = 'card';
       a.href = r.html_url;
       a.target = '_blank';
       a.rel = 'noopener';
+      a.style.setProperty('--accent', accent);
       a.innerHTML =
-        '<div class="card-top"><h3>' + esc(r.name) + '</h3>' +
+        '<div class="card-top"><span class="rank" style="color:' + accent + '">' + ('0' + (idx + 1)).slice(-2) + '</span>' +
+        '<h3>' + esc(r.name) + '</h3><span class="spacer"></span>' +
         '<span class="stars">★ ' + r.stargazers_count + '</span></div>' +
         '<p>' + esc(r.description || 'Open-source AI project.') + '</p>' +
+        (topics ? '<div class="topics">' + topics + '</div>' : '') +
         '<div class="card-meta"><span class="dot" style="background:' + color + '"></span>' +
         esc(r.language || 'Code') + '</div>' +
-        '<span class="go">View on GitHub →</span>';
+        '<span class="go" style="color:' + accent + '">View on GitHub →</span>';
       grid.appendChild(a);
       io.observe(a);
     });
   }
 
-  function setStat(id, val) { document.getElementById(id).textContent = val; }
+  /* count-up animation for pure-number stats */
+  function setStat(id, val) {
+    var el = document.getElementById(id);
+    if (!/^\d+$/.test(val)) { el.textContent = val; return; }
+    var target = parseInt(val, 10);
+    var start = null;
+    function frame(t) {
+      if (!start) start = t;
+      var p = Math.min((t - start) / 1200, 1);
+      el.textContent = String(Math.round(target * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) requestAnimationFrame(frame);
+    }
+    var vio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { requestAnimationFrame(frame); vio.disconnect(); }
+      });
+    }, { threshold: 0.4 });
+    vio.observe(el);
+  }
 
   function getJSON(url) {
     return fetch(url, { headers: { 'Accept': 'application/vnd.github+json' } })
@@ -129,4 +155,19 @@
   getJSON('https://api.github.com/search/issues?q=author:' + USER + '+type:pr&per_page=1')
     .then(function (d) { setStat('st-prs', String(d.total_count)); })
     .catch(function () { setStat('st-prs', '1'); });
+
+  /* ---------- cursor glow (fine pointers only) ---------- */
+  if (window.matchMedia('(pointer:fine)').matches) {
+    var glow = document.createElement('div');
+    glow.id = 'glow';
+    document.body.appendChild(glow);
+    var gx = -600, gy = -600, tx = gx, ty = gy;
+    window.addEventListener('mousemove', function (e) { tx = e.clientX; ty = e.clientY; });
+    (function follow() {
+      gx += (tx - gx) * 0.08;
+      gy += (ty - gy) * 0.08;
+      glow.style.transform = 'translate(' + (gx - 260) + 'px,' + (gy - 260) + 'px)';
+      requestAnimationFrame(follow);
+    })();
+  }
 })();

@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Tushar — AI Engineer</title>
 <meta name="description" content="Tushar — AI Engineer building LLM agents, RAG and eval-first AI systems. Based in Bengaluru, India." />
+<meta property="og:title" content="Tushar — AI Engineer" />
+<meta property="og:description" content="LLM agents, RAG and eval-first AI systems — in production at KPMG, and open-sourced every day." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://tushar29k.github.io/" />
+<meta property="og:image" content="https://raw.githubusercontent.com/tushar29k/tushar29k/main/assets/banner.webp" />
+<meta name="twitter:card" content="summary_large_image" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M21 20.5A9 9 0 1 1 11.5 3 7 7 0 0 0 21 20.5z' fill='%2322D3EE'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,10 +21,11 @@
 <canvas id="stars" aria-hidden="true"></canvas>
 
 <nav class="nav">
-  <a class="brand" href="#top">tushar<span>.dev</span></a>
+  <a class="brand" href="#top">tushar<span>29k</span></a>
   <div class="links">
     <a href="#projects">Projects</a>
     <a href="#stack">Stack</a>
+    <a href="#journey">Journey</a>
     <a href="#about">About</a>
     <a href="#contact" class="cta">Contact</a>
   </div>
@@ -38,6 +45,10 @@
   <a class="scroll-hint" href="#stats" aria-label="scroll down">↓</a>
 </header>
 
+<div class="divider" aria-hidden="true">
+  <img src="https://raw.githubusercontent.com/tushar29k/tushar29k/main/assets/lightning-strip.gif" alt="" />
+</div>
+
 <section class="strip" id="stats">
   <div class="stat"><span class="num" id="st-commits">…</span><span class="lbl">commits</span></div>
   <div class="stat"><span class="num" id="st-repos">…</span><span class="lbl">repositories</span></div>
@@ -49,7 +60,10 @@
   <h2>Projects <span class="jp">作品</span></h2>
   <p class="sub">Open-source systems I design, build and measure. Every one ships with evals.</p>
   <div class="grid" id="project-grid">
-    <!-- filled by app.js; fallback cards below render if JS/API fails -->
+    <div class="card skeleton" aria-hidden="true"><div class="sk-line sk-title"></div><div class="sk-line"></div><div class="sk-line short"></div></div>
+    <div class="card skeleton" aria-hidden="true"><div class="sk-line sk-title"></div><div class="sk-line"></div><div class="sk-line short"></div></div>
+    <div class="card skeleton" aria-hidden="true"><div class="sk-line sk-title"></div><div class="sk-line"></div><div class="sk-line short"></div></div>
+    <div class="card skeleton" aria-hidden="true"><div class="sk-line sk-title"></div><div class="sk-line"></div><div class="sk-line short"></div></div>
     <noscript><p class="muted">Enable JavaScript to see live project data — or browse them on <a href="https://github.com/tushar29k?tab=repositories">GitHub</a>.</p></noscript>
   </div>
 </section>
@@ -73,6 +87,41 @@
     <h3>Serving</h3>
     <div class="pills">
       <span>Python</span><span>FastAPI</span><span>Cloud Run</span><span>Docker</span><span>GitHub Actions</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="journey">
+  <h2>Journey <span class="jp">旅路</span></h2>
+  <p class="sub">Where I've been, and what I shipped along the way.</p>
+  <div class="timeline">
+    <div class="t-item">
+      <span class="t-dot"></span>
+      <div class="t-card">
+        <div class="t-head"><h3>KPMG — GenAI Analyst</h3><span class="t-when">Sep 2024 – Present · Bengaluru</span></div>
+        <p>Production GenAI: multi-agent pipelines with LangGraph, RAG over large document corpora, vector search at scale, and LoRA/QLoRA fine-tuning. Everything ships with eval harnesses — recall, faithfulness, LLM-as-judge.</p>
+      </div>
+    </div>
+    <div class="t-item">
+      <span class="t-dot"></span>
+      <div class="t-card">
+        <div class="t-head"><h3>Open source — every day</h3><span class="t-when">2026 – Present</span></div>
+        <p>Four flagship systems built in the open — RAG, agents, LLM serving, PR review — each evolving with a real commit daily and READMEs that lead with eval numbers.</p>
+      </div>
+    </div>
+    <div class="t-item">
+      <span class="t-dot"></span>
+      <div class="t-card">
+        <div class="t-head"><h3>Microsoft Azure AI-102</h3><span class="t-when">2025 · Certified</span></div>
+        <p>Azure AI Engineer Associate — designing and implementing Azure AI solutions.</p>
+      </div>
+    </div>
+    <div class="t-item">
+      <span class="t-dot"></span>
+      <div class="t-card">
+        <div class="t-head"><h3>BE, Electrical &amp; Electronics — VTU</h3><span class="t-when">2020 – 2024</span></div>
+        <p>Engineering degree; pivoted to AI and never looked back.</p>
+      </div>
     </div>
   </div>
 </section>

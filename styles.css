@@ -276,3 +276,94 @@ footer {
   .nav .links a:not(.cta) { display: none; }
   .strip { gap: 1.2rem; }
 }
+
+/* ---------- lightning divider ---------- */
+.divider {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  padding: 0 1rem;
+  margin-top: -1px;
+  background: var(--bg);
+}
+.divider img { width: min(680px, 100%); display: block; opacity: .9; }
+
+/* ---------- skeleton shimmer ---------- */
+.card.skeleton { opacity: 1; transform: none; pointer-events: none; gap: 1rem; }
+.sk-line {
+  height: 14px;
+  border-radius: 7px;
+  background: linear-gradient(90deg, #101c30 25%, #16294a 50%, #101c30 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+.sk-line.sk-title { height: 20px; width: 55%; }
+.sk-line.short { width: 40%; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* ---------- project card ranks + topics ---------- */
+.card .rank {
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.card-top { gap: .6rem; }
+.card-top .spacer { flex: 1; }
+.topics { display: flex; flex-wrap: wrap; gap: .4rem; }
+.topics span {
+  font-size: .72rem;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: .15rem .6rem;
+}
+
+/* ---------- journey timeline ---------- */
+.timeline { position: relative; margin-left: .6rem; padding-left: 1.8rem; }
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px; top: 6px; bottom: 6px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--cyan), var(--violet), var(--pink));
+  opacity: .5;
+  border-radius: 2px;
+}
+.t-item { position: relative; margin-bottom: 1.4rem; }
+.t-dot {
+  position: absolute;
+  left: -1.8rem;
+  top: 1.5rem;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--cyan);
+  box-shadow: 0 0 12px rgba(34, 211, 238, .7);
+}
+.t-item:nth-child(2) .t-dot { border-color: var(--teal); box-shadow: 0 0 12px rgba(45, 212, 191, .7); }
+.t-item:nth-child(3) .t-dot { border-color: var(--violet); box-shadow: 0 0 12px rgba(167, 139, 250, .7); }
+.t-item:nth-child(4) .t-dot { border-color: var(--pink); box-shadow: 0 0 12px rgba(244, 114, 182, .7); }
+.t-card {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.4rem 1.6rem;
+  transition: border-color .25s, transform .25s;
+}
+.t-card:hover { border-color: rgba(34, 211, 238, .4); transform: translateX(4px); }
+.t-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; margin-bottom: .5rem; }
+.t-head h3 { font-size: 1.05rem; font-weight: 700; }
+.t-when { color: var(--muted); font-size: .82rem; white-space: nowrap; }
+.t-card p { color: var(--muted); font-size: .93rem; }
+
+/* ---------- cursor glow (desktop only) ---------- */
+#glow {
+  position: fixed;
+  width: 520px; height: 520px;
+  left: 0; top: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle, rgba(34, 211, 238, .07) 0%, transparent 60%);
+  transform: translate(-50%, -50%);
+}
