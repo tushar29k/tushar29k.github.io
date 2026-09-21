@@ -43,6 +43,91 @@
       s: 0.5 + Math.random() * 1.5
     });
   }
+
+  /* ---------- moon, clouds, sea shimmer, sailing ship ---------- */
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var clouds = [];
+  for (var ci = 0; ci < 5; ci++) {
+    clouds.push({
+      x: Math.random(), y: 0.06 + Math.random() * 0.32,
+      s: 70 + Math.random() * 110, v: 0.000008 + Math.random() * 0.000012,
+      a: 0.04 + Math.random() * 0.05
+    });
+  }
+  var waves = [];
+  for (var wi = 0; wi < 16; wi++) {
+    waves.push({ x: Math.random(), dy: Math.random() * 44 - 12, len: 24 + Math.random() * 60, v: 0.00002 + Math.random() * 0.00003 });
+  }
+
+  function drawMoon(t) {
+    var mx = canvas.width * 0.84, my = canvas.height * 0.16, mr = 42;
+    var pulse = reduced ? 0 : Math.sin(t / 2400) * 6;
+    var g = ctx.createRadialGradient(mx, my, mr * 0.4, mx, my, mr * 3.2 + pulse);
+    g.addColorStop(0, 'rgba(245, 240, 220, 0.20)');
+    g.addColorStop(1, 'rgba(245, 240, 220, 0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(mx - mr * 3.4, my - mr * 3.4, mr * 6.8, mr * 6.8);
+    ctx.fillStyle = '#efe9d2';
+    ctx.beginPath(); ctx.arc(mx, my, mr, 0, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(190, 185, 160, 0.5)';
+    ctx.beginPath(); ctx.arc(mx - 12, my - 8, 8, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(mx + 10, my + 12, 5, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(mx + 14, my - 14, 4, 0, 7); ctx.fill();
+  }
+
+  function drawShip(t) {
+    var W = canvas.width, H = canvas.height;
+    var tt = reduced ? 60000 : t;
+    var fx = ((tt * 0.0000115) % 1.5) - 0.25;   /* slow sail across, then wrap */
+    var edge = Math.min(1, Math.min(fx + 0.25, 1.25 - fx) / 0.15); /* fade at edges */
+    if (edge <= 0) return;
+    var sx = fx * W;
+    var sy = H * 0.84 + (reduced ? 0 : Math.sin(tt / 900) * 6); /* gentle bob */
+    var k = Math.max(0.9, Math.min(1.6, W / 1100)); /* scale with viewport */
+    ctx.save();
+    ctx.translate(sx, sy);
+    ctx.scale(k, k);
+    ctx.globalAlpha = 0.85 * Math.max(0, edge);
+    /* moonlit water glow under the hull */
+    var wg = ctx.createRadialGradient(0, 26, 4, 0, 26, 130);
+    wg.addColorStop(0, 'rgba(150, 200, 235, 0.16)');
+    wg.addColorStop(1, 'rgba(150, 200, 235, 0)');
+    ctx.fillStyle = wg;
+    ctx.fillRect(-140, -10, 280, 90);
+    /* sails */
+    ctx.fillStyle = '#14263d';
+    ctx.beginPath(); /* main sail */
+    ctx.moveTo(-6, -78); ctx.quadraticCurveTo(34, -60, 30, -18); ctx.lineTo(-6, -18); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); /* fore sail */
+    ctx.moveTo(-58, -64); ctx.quadraticCurveTo(-28, -50, -31, -16); ctx.lineTo(-58, -16); ctx.closePath(); ctx.fill();
+    /* masts + hull silhouette */
+    ctx.strokeStyle = '#050a12'; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(-6, -84); ctx.lineTo(-6, 6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-58, -70); ctx.lineTo(-58, 6); ctx.stroke();
+    ctx.fillStyle = '#050a12';
+    ctx.beginPath();
+    ctx.moveTo(-78, 4); ctx.quadraticCurveTo(-60, 26, -30, 28);
+    ctx.lineTo(40, 28); ctx.quadraticCurveTo(66, 24, 74, 2);
+    ctx.lineTo(60, 4); ctx.lineTo(-64, 4); ctx.closePath(); ctx.fill();
+    ctx.fillRect(-84, -2, 8, 10); /* stern cabin */
+    /* tiny lantern glowing in the cabin */
+    ctx.fillStyle = '#ffd97a';
+    ctx.beginPath(); ctx.arc(-80, 3, 2.6, 0, 7); ctx.fill();
+    var lg = ctx.createRadialGradient(-80, 3, 1, -80, 3, 14);
+    lg.addColorStop(0, 'rgba(255, 217, 122, 0.55)');
+    lg.addColorStop(1, 'rgba(255, 217, 122, 0)');
+    ctx.fillStyle = lg;
+    ctx.fillRect(-94, -11, 28, 28);
+    /* flag */
+    ctx.strokeStyle = '#050a12'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(-6, -84); ctx.lineTo(-6, -94); ctx.stroke();
+    ctx.fillStyle = '#0e1a2c';
+    var wave = reduced ? 0 : Math.sin(tt / 350) * 2;
+    ctx.beginPath(); ctx.moveTo(-6, -94); ctx.quadraticCurveTo(8, -93 + wave, 16, -90 + wave);
+    ctx.lineTo(-6, -86); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+
   (function draw(t) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (var j = 0; j < stars.length; j++) {
@@ -54,6 +139,33 @@
       ctx.arc(st.x * canvas.width, st.y * canvas.height, st.r, 0, 7);
       ctx.fill();
     }
+    ctx.globalAlpha = 1;
+    drawMoon(t);
+    /* drifting clouds */
+    var ctt = reduced ? 0 : t;
+    for (var q = 0; q < clouds.length; q++) {
+      var cl = clouds[q];
+      var cx = (((cl.x + ctt * cl.v) % 1.3) - 0.15) * canvas.width;
+      var cy = cl.y * canvas.height;
+      ctx.globalAlpha = cl.a;
+      ctx.fillStyle = '#8fa8c8';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, cl.s, cl.s * 0.32, 0, 0, 7);
+      ctx.ellipse(cx - cl.s * 0.5, cy + 6, cl.s * 0.55, cl.s * 0.22, 0, 0, 7);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    /* faint wave dashes on the water */
+    var wtt = reduced ? 0 : t;
+    ctx.strokeStyle = 'rgba(150, 200, 235, 0.10)';
+    ctx.lineWidth = 2;
+    for (var z = 0; z < waves.length; z++) {
+      var wv = waves[z];
+      var wx = (((wv.x + wtt * wv.v) % 1.2) - 0.1) * canvas.width;
+      var wy = canvas.height * 0.84 + 34 + wv.dy;
+      ctx.beginPath(); ctx.moveTo(wx, wy); ctx.lineTo(wx + wv.len, wy); ctx.stroke();
+    }
+    drawShip(t);
     ctx.globalAlpha = 1;
     requestAnimationFrame(draw);
   })(0);
