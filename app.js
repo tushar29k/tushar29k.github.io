@@ -46,6 +46,9 @@
 
   /* ---------- moon, clouds, sea shimmer, sailing ship ---------- */
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* on touch phones skip the 60fps canvas loop entirely — one static frame,
+     so scrolling stays smooth and the battery lasts */
+  var staticCanvas = window.matchMedia('(hover: none)').matches || window.innerWidth < 640;
   var clouds = [];
   for (var ci = 0; ci < 5; ci++) {
     clouds.push({
@@ -167,6 +170,7 @@
     }
     drawShip(t);
     ctx.globalAlpha = 1;
+    if (staticCanvas) return; /* one static frame is enough on phones */
     requestAnimationFrame(draw);
   })(0);
 
