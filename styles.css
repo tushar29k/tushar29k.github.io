@@ -395,7 +395,11 @@ footer {
   background: linear-gradient(180deg, var(--cyan), var(--violet), var(--pink));
   opacity: .5;
   border-radius: 2px;
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 1.8s ease .2s;
 }
+.timeline.drawn::before { transform: scaleY(1); }
 .t-item { position: relative; margin-bottom: 1.4rem; }
 .t-dot {
   position: absolute;
@@ -406,7 +410,9 @@ footer {
   background: var(--bg);
   border: 2px solid var(--cyan);
   box-shadow: 0 0 12px rgba(34, 211, 238, .7);
+  animation: dot-breathe 3.6s ease-in-out infinite;
 }
+@keyframes dot-breathe { 50% { transform: scale(1.28); } }
 .t-item:nth-child(2) .t-dot { border-color: var(--teal); box-shadow: 0 0 12px rgba(45, 212, 191, .7); }
 .t-item:nth-child(3) .t-dot { border-color: var(--violet); box-shadow: 0 0 12px rgba(167, 139, 250, .7); }
 .t-item:nth-child(4) .t-dot { border-color: var(--pink); box-shadow: 0 0 12px rgba(244, 114, 182, .7); }
@@ -552,3 +558,76 @@ footer {
 
 /* ---------- staggered card entrance ---------- */
 .card { transition: opacity .5s ease, transform .5s ease, border-color .25s, box-shadow .25s; }
+
+/* ---------- ambient motion layer (subtle) ---------- */
+
+/* scroll progress hairline */
+#progress {
+  position: fixed; top: 0; left: 0;
+  height: 2px; width: 0%;
+  background: linear-gradient(90deg, var(--cyan), var(--violet), var(--pink));
+  z-index: 60; opacity: .9;
+  pointer-events: none;
+}
+
+/* drifting ambient orbs */
+.orb {
+  position: fixed; border-radius: 50%;
+  filter: blur(90px); pointer-events: none;
+  z-index: 0; opacity: .15;
+}
+.orb-a {
+  width: 480px; height: 480px; top: -140px; left: -120px;
+  background: radial-gradient(circle, rgba(34, 211, 238, .55), transparent 70%);
+  animation: drift-a 34s ease-in-out infinite alternate;
+}
+.orb-b {
+  width: 560px; height: 560px; top: 38%; right: -200px;
+  background: radial-gradient(circle, rgba(167, 139, 250, .5), transparent 70%);
+  animation: drift-b 42s ease-in-out infinite alternate;
+}
+.orb-c {
+  width: 420px; height: 420px; bottom: -160px; left: 30%;
+  background: radial-gradient(circle, rgba(244, 114, 182, .45), transparent 70%);
+  animation: drift-c 38s ease-in-out infinite alternate;
+}
+@keyframes drift-a { to { transform: translate(120px, 90px) scale(1.12); } }
+@keyframes drift-b { to { transform: translate(-140px, -70px) scale(.92); } }
+@keyframes drift-c { to { transform: translate(-90px, -110px) scale(1.08); } }
+
+/* project card sheen sweep */
+.card { position: relative; overflow: hidden; }
+.card::after {
+  content: ''; position: absolute; top: 0; left: -70%;
+  width: 45%; height: 100%; pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .09), transparent);
+  transform: skewX(-18deg);
+  transition: left .7s ease;
+}
+.card:hover::after { left: 135%; }
+
+/* slow shimmer on section headings */
+.section h2 {
+  background: linear-gradient(90deg, var(--text) 30%, var(--cyan) 50%, var(--text) 70%);
+  background-size: 220% 100%;
+  animation: h2-shimmer 14s ease-in-out infinite;
+}
+@keyframes h2-shimmer {
+  0%, 100% { background-position: 0% 0; }
+  50% { background-position: 100% 0; }
+}
+.section h2 .jp { animation: jp-breathe 5s ease-in-out infinite; }
+@keyframes jp-breathe { 50% { opacity: .45; } }
+
+/* gentle glow on stats */
+.stat .num { text-shadow: 0 0 26px rgba(34, 211, 238, .28); }
+
+/* button press feedback */
+.btn:active { transform: translateY(0) scale(.98); }
+
+@media (prefers-reduced-motion: reduce) {
+  .orb, .section h2, .section h2 .jp, .t-dot,
+  .hero h1, .scroll-hint, .marquee-track { animation: none !important; }
+  .timeline::before { transform: none; transition: none; }
+  #progress { display: none; }
+}
