@@ -75,12 +75,38 @@ a { color: inherit; }
   justify-content: center;
   text-align: center;
   padding: 6rem 1.5rem 4rem;
-  background:
-    linear-gradient(rgba(11, 20, 36, .55), rgba(11, 20, 36, .88)),
-    url('https://raw.githubusercontent.com/tushar29k/tushar29k/main/assets/banner.webp') center / cover no-repeat;
+  background: var(--bg);
+  overflow: hidden;
 }
 
-.hero-inner { max-width: 720px; }
+/* animated aurora blobs */
+.aurora { position: absolute; inset: 0; overflow: hidden; }
+.aurora span {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: .45;
+  animation: drift 20s ease-in-out infinite alternate;
+}
+.aurora span:nth-child(1) {
+  width: 44vw; height: 44vw; left: -10vw; top: -12vw;
+  background: radial-gradient(circle, rgba(34, 211, 238, .55), transparent 70%);
+}
+.aurora span:nth-child(2) {
+  width: 38vw; height: 38vw; right: -8vw; top: 22vh;
+  background: radial-gradient(circle, rgba(167, 139, 250, .5), transparent 70%);
+  animation-delay: -7s; animation-duration: 24s;
+}
+.aurora span:nth-child(3) {
+  width: 30vw; height: 30vw; left: 30vw; bottom: -14vw;
+  background: radial-gradient(circle, rgba(244, 114, 182, .4), transparent 70%);
+  animation-delay: -13s; animation-duration: 28s;
+}
+@keyframes drift {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(6vw, -4vh) scale(1.15); }
+}
+.hero-inner { position: relative; z-index: 2; max-width: 720px; }
 
 .kicker {
   color: var(--muted);
@@ -367,3 +393,73 @@ footer {
   background: radial-gradient(circle, rgba(34, 211, 238, .07) 0%, transparent 60%);
   transform: translate(-50%, -50%);
 }
+
+/* ---------- marquee ---------- */
+.marquee {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: rgba(14, 26, 46, .5);
+  padding: .9rem 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee-track {
+  display: inline-flex;
+  gap: 2.2rem;
+  white-space: nowrap;
+  animation: marquee 28s linear infinite;
+  padding-right: 2.2rem;
+}
+.marquee-track span { font-weight: 700; letter-spacing: 3px; font-size: .85rem; color: var(--muted); }
+.marquee-track i { color: var(--cyan); font-style: normal; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+/* ---------- animated section headers ---------- */
+.section h2 {
+  background: linear-gradient(90deg, var(--text) 30%, var(--cyan));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  position: relative;
+  padding-bottom: .5rem;
+}
+.section h2::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: 0;
+  height: 3px; width: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--cyan), var(--violet), var(--pink));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .8s ease .15s;
+}
+.section h2.inview::after { transform: scaleX(1); }
+
+/* ---------- button shine ---------- */
+.btn { position: relative; overflow: hidden; }
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -80%;
+  width: 50%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .35), transparent);
+  transform: skewX(-20deg);
+  transition: left .6s ease;
+}
+.btn:hover::before { left: 130%; }
+
+/* ---------- nav hide on scroll ---------- */
+.nav { transition: transform .35s ease; }
+.nav.hidden { transform: translateY(-100%); }
+
+/* ---------- floating hero name ---------- */
+.hero h1 { animation: floaty 7s ease-in-out infinite; }
+@keyframes floaty { 50% { transform: translateY(-8px); } }
+
+/* ---------- staggered card entrance ---------- */
+.card { transition: opacity .5s ease, transform .5s ease, border-color .25s, box-shadow .25s; }

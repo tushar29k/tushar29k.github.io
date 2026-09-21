@@ -65,6 +65,37 @@
     });
   }, { threshold: 0.12 });
 
+  /* stagger project cards */
+  var pio = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        var cards = Array.prototype.slice.call(e.target.querySelectorAll('.card:not(.skeleton)'));
+        cards.forEach(function (c, i) { c.style.transitionDelay = (i * 90) + 'ms'; });
+        e.target.querySelectorAll('.card:not(.skeleton)').forEach(function (c) { io.observe(c); });
+        pio.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.05 });
+  pio.observe(document.getElementById('project-grid'));
+
+  /* section header underline animation */
+  var hio = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add('inview'); hio.unobserve(e.target); }
+    });
+  }, { threshold: 0.6 });
+  document.querySelectorAll('.section h2').forEach(function (h) { hio.observe(h); });
+
+  /* nav hide on scroll down / show on scroll up */
+  var nav = document.querySelector('.nav');
+  var lastY = 0;
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY;
+    if (y > 140 && y > lastY) nav.classList.add('hidden');
+    else nav.classList.remove('hidden');
+    lastY = y;
+  }, { passive: true });
+
   /* ---------- live GitHub data ---------- */
   var USER = 'tushar29k';
   var FALLBACK = [
