@@ -96,6 +96,47 @@
     lastY = y;
   }, { passive: true });
 
+  /* ---------- scroll progress hairline ---------- */
+  var prog = document.getElementById('progress');
+  var pTicking = false;
+  window.addEventListener('scroll', function () {
+    if (pTicking) return;
+    pTicking = true;
+    requestAnimationFrame(function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      prog.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+      pTicking = false;
+    });
+  }, { passive: true });
+
+  /* ---------- timeline draws itself on scroll ---------- */
+  var tio = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add('drawn'); tio.unobserve(e.target); }
+    });
+  }, { threshold: 0.25 });
+  document.querySelectorAll('.timeline').forEach(function (t) { tio.observe(t); });
+
+  /* ---------- subtle 3D tilt on project cards (fine pointers, motion-safe) ---------- */
+  var motionOK = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (window.matchMedia('(pointer:fine)').matches && motionOK) {
+    var grid = document.getElementById('project-grid');
+    grid.addEventListener('pointermove', function (e) {
+      var card = e.target.closest('.card');
+      if (!card || !card.classList.contains('visible')) return;
+      var r = card.getBoundingClientRect();
+      var px = (e.clientX - r.left) / r.width - 0.5;
+      var py = (e.clientY - r.top) / r.height - 0.5;
+      card.style.transform = 'perspective(900px) rotateX(' + (-py * 5).toFixed(2) +
+        'deg) rotateY(' + (px * 5).toFixed(2) + 'deg) translateY(-4px)';
+    });
+    grid.addEventListener('pointerout', function (e) {
+      var card = e.target.closest('.card');
+      if (card && !card.contains(e.relatedTarget)) card.style.transform = '';
+    });
+  }
+
   /* ---------- live GitHub data ---------- */
   var USER = 'tushar29k';
   var FALLBACK = [
