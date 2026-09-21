@@ -565,13 +565,9 @@ footer {
   background: radial-gradient(circle, rgba(244, 114, 182, .45), transparent 70%);
 }
 
-/* heavy ambient animation only runs on devices with a real mouse/trackpad —
-   on touch phones the orbs stay static so scrolling stays smooth */
-@media (hover: hover) and (pointer: fine) {
-  .orb-a { animation: drift-a 34s ease-in-out infinite alternate; }
-  .orb-b { animation: drift-b 42s ease-in-out infinite alternate; }
-  .orb-c { animation: drift-c 38s ease-in-out infinite alternate; }
-}
+.orb-a { animation: drift-a 34s ease-in-out infinite alternate; }
+.orb-b { animation: drift-b 42s ease-in-out infinite alternate; }
+.orb-c { animation: drift-c 38s ease-in-out infinite alternate; }
 @keyframes drift-a { to { transform: translate(120px, 90px) scale(1.12); } }
 @keyframes drift-b { to { transform: translate(-140px, -70px) scale(.92); } }
 @keyframes drift-c { to { transform: translate(-90px, -110px) scale(1.08); } }
@@ -599,10 +595,10 @@ footer {
 /* render off-screen sections lazily — big win for scroll smoothness on phones */
 .section { content-visibility: auto; contain-intrinsic-size: auto 600px; }
 
-/* on touch devices: drop the blurred fixed nav and the marquee motion too */
+/* on touch devices: keep the blurred fixed nav off and sections lazy-rendered,
+   but leave the visible animations running */
 @media (hover: none), (max-width: 640px) {
   .nav { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(4, 10, 22, .92); }
-  .marquee-track { animation: none; }
   .orb { filter: blur(40px); opacity: .5; }
 }
 
