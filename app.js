@@ -264,9 +264,12 @@
     'llm-service': 'An LLM microservice wrapper: streaming chat plus structured JSON extraction with pluggable backends (a mock fallback so it works anywhere). Includes latency benchmarks.',
     'pr-review-agent': 'An automated pull-request reviewer: deterministic static checks (secrets, debug leftovers, TODOs) plus a swappable LLM backend, CLI and API. Paste a diff, get a rendered Markdown review with severity chips.'
   };
-  /* public demo URLs — fill in once the FastAPI apps are deployed */
+  /* public demo URLs — deployed on Render, verified live 2026-09-21 */
   var DEMO = {
-    'rag-service': '', 'agent-service': '', 'llm-service': '', 'pr-review-agent': ''
+    'rag-service': 'https://tushar29k-rag-service.onrender.com',
+    'agent-service': 'https://tushar29k-agent-service.onrender.com',
+    'llm-service': 'https://tushar29k-llm-service.onrender.com',
+    'pr-review-agent': 'https://tushar29k-pr-review-agent.onrender.com'
   };
   var LANG_COLORS = { Python: '#3572A5', 'Jupyter Notebook': '#DA5B0B', Dockerfile: '#384D54', Shell: '#89E051' };
   var ACCENTS = ['#22D3EE', '#2DD4BF', '#A78BFA', '#F472B6'];
