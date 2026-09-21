@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tushar — AI Engineer</title>
+<meta name="description" content="Tushar — AI Engineer building LLM agents, RAG and eval-first AI systems. Based in Bengaluru, India." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M21 20.5A9 9 0 1 1 11.5 3 7 7 0 0 0 21 20.5z' fill='%2322D3EE'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+
+<nav class="nav">
+  <a class="brand" href="#top">tushar<span>.dev</span></a>
+  <div class="links">
+    <a href="#projects">Projects</a>
+    <a href="#stack">Stack</a>
+    <a href="#about">About</a>
+    <a href="#contact" class="cta">Contact</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="hero-inner">
+    <p class="kicker"><span class="jp">航海</span> — AI Engineer · Bengaluru, India</p>
+    <h1>TUSHAR</h1>
+    <p class="typing"><span id="typed"></span><span class="caret">▍</span></p>
+    <p class="lede">I build <strong>LLM agents</strong>, <strong>RAG systems</strong> and <strong>eval harnesses</strong> — in production at KPMG, and in the open, one commit at a time.</p>
+    <div class="hero-btns">
+      <a class="btn primary" href="#projects">View projects</a>
+      <a class="btn ghost" href="https://github.com/tushar29k" target="_blank" rel="noopener">GitHub ↗</a>
+    </div>
+  </div>
+  <a class="scroll-hint" href="#stats" aria-label="scroll down">↓</a>
+</header>
+
+<section class="strip" id="stats">
+  <div class="stat"><span class="num" id="st-commits">…</span><span class="lbl">commits</span></div>
+  <div class="stat"><span class="num" id="st-repos">…</span><span class="lbl">repositories</span></div>
+  <div class="stat"><span class="num" id="st-prs">…</span><span class="lbl">pull requests</span></div>
+  <div class="stat"><span class="num accent">18/18</span><span class="lbl">eval suites passing</span></div>
+</section>
+
+<section class="section" id="projects">
+  <h2>Projects <span class="jp">作品</span></h2>
+  <p class="sub">Open-source systems I design, build and measure. Every one ships with evals.</p>
+  <div class="grid" id="project-grid">
+    <!-- filled by app.js; fallback cards below render if JS/API fails -->
+    <noscript><p class="muted">Enable JavaScript to see live project data — or browse them on <a href="https://github.com/tushar29k?tab=repositories">GitHub</a>.</p></noscript>
+  </div>
+</section>
+
+<section class="section" id="stack">
+  <h2>Stack <span class="jp">技術</span></h2>
+  <p class="sub">The tools I reach for in production.</p>
+  <div class="stack-group">
+    <h3>LLM &amp; Agents</h3>
+    <div class="pills">
+      <span>LangChain</span><span>LangGraph</span><span>Google ADK</span><span>MCP</span><span>Azure OpenAI</span><span>Vertex AI</span><span>Hugging Face</span>
+    </div>
+  </div>
+  <div class="stack-group">
+    <h3>Retrieval &amp; Data</h3>
+    <div class="pills">
+      <span>Azure AI Search</span><span>Vector search</span><span>Reranking</span><span>SQL</span><span>LoRA / QLoRA</span>
+    </div>
+  </div>
+  <div class="stack-group">
+    <h3>Serving</h3>
+    <div class="pills">
+      <span>Python</span><span>FastAPI</span><span>Cloud Run</span><span>Docker</span><span>GitHub Actions</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="about">
+  <h2>About <span class="jp">私について</span></h2>
+  <div class="about-card">
+    <p><strong>AI Engineer</strong> with 2 years shipping production GenAI at <strong>KPMG</strong> (Sep 2024 – present) — multi-agent pipelines, RAG over large document corpora, vector search at scale, and LoRA/QLoRA fine-tuning.</p>
+    <p>I build <strong>eval-first</strong>: every system ships with numbers, not vibes. And I open-source something new <strong>every single day</strong>.</p>
+    <p class="muted">BE Electrical &amp; Electronics, VTU (2024) · Azure AI-102 certified (2025) · Based in Bengaluru, India</p>
+  </div>
+</section>
+
+<section class="section contact" id="contact">
+  <h2>Contact <span class="jp">連絡</span></h2>
+  <p class="sub">If you're hiring for AI engineering — or just want to talk agents and evals.</p>
+  <div class="hero-btns">
+    <a class="btn primary" href="mailto:maxtushar292001@gmail.com">maxtushar292001@gmail.com</a>
+    <a class="btn ghost" href="https://github.com/tushar29k" target="_blank" rel="noopener">GitHub ↗</a>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Tushar · Bounty rising — one commit at a time 🏴‍☠️</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
