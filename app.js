@@ -261,7 +261,7 @@
   var BLURB = {
     'rag-service': 'A document-grounded Q&A API: chunking, embeddings and a vector store behind a retrieval pipeline with recall@3 and faithfulness evals. Try it in the browser — index docs and ask questions with citations, scores and latency.',
     'agent-service': 'A ReAct-style agent with tools, human-approval gates on destructive actions, checkpoints and a LangGraph variant. Chat with it in the browser and watch it stream thoughts and tool calls, approving risky steps yourself.',
-    'llm-service': 'An LLM microservice wrapper: streaming chat plus structured JSON extraction with pluggable backends (a mock fallback so it works anywhere). Includes latency benchmarks.',
+    'llm-service': 'An LLM microservice wrapper: streaming chat plus structured JSON extraction with pluggable backends (a mock fallback so it works anywhere), now with an OpenAI-compatible /v1/chat/completions endpoint. Includes latency benchmarks.',
     'pr-review-agent': 'An automated pull-request reviewer: deterministic static checks (secrets, debug leftovers, TODOs) plus a swappable LLM backend, CLI and API. Paste a diff, get a rendered Markdown review with severity chips.'
   };
   /* public demo URLs — deployed on Render, verified live 2026-09-21 */
