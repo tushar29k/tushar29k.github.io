@@ -255,21 +255,33 @@
     { name: 'rag-service', description: 'Production-shaped RAG: chunking, vector search, evals (recall@3 + faithfulness), FastAPI.', language: 'Python', stargazers_count: 0 },
     { name: 'agent-service', description: 'ReAct agent with tools, human-approval gates, checkpoints, LangGraph variant, and task evals.', language: 'Python', stargazers_count: 0 },
     { name: 'llm-service', description: 'Local LLM microservice: chat, streaming, structured extraction, latency benchmarks.', language: 'Python', stargazers_count: 0 },
-    { name: 'pr-review-agent', description: 'Automated PR reviewer: deterministic checks + swappable LLM backend, CLI + API, evals.', language: 'Python', stargazers_count: 0 }
+    { name: 'pr-review-agent', description: 'Automated PR reviewer: deterministic checks + swappable LLM backend, CLI + API, evals.', language: 'Python', stargazers_count: 0 },
+    { name: 'support-agent', description: 'Support-ticket agent: hybrid RAG, human-approval gate, MCP-style tools, groundedness evals (10/10, 0% bait hallucination).', language: 'Python', stargazers_count: 0 },
+    { name: 'voice-agent', description: 'Voice receptionist: browser Web Speech in/out, slot-filling state machine, per-turn latency budget, 7/7 scenario evals.', language: 'Python', stargazers_count: 0 },
+    { name: 'deep-research-agent', description: 'Planner-researcher-critic-writer pipeline: structural citation enforcement, 100% claim verifiability, planted-fabrication evals.', language: 'Python', stargazers_count: 0 },
+    { name: 'sql-agent', description: 'NL to SQL over SQLite with a bounded self-correction loop and row-set execution accuracy evals (13/13).', language: 'Python', stargazers_count: 0 }
   ];
   /* richer "what it is" blurbs for the four flagships; deployment URLs land here once live */
   var BLURB = {
     'rag-service': 'A document-grounded Q&A API: chunking, embeddings and a vector store behind a retrieval pipeline with recall@3 and faithfulness evals. Try it in the browser — index docs and ask questions with citations, scores and latency, answers streaming token-by-token over SSE.',
     'agent-service': 'A ReAct-style agent with tools, human-approval gates on destructive actions, checkpoints and a LangGraph variant. Chat with it in the browser and watch it stream thoughts and tool calls, approving risky steps yourself.',
     'llm-service': 'An LLM microservice wrapper: streaming chat plus structured JSON extraction with pluggable backends (a mock fallback so it works anywhere), now with an OpenAI-compatible /v1/chat/completions endpoint. Includes latency benchmarks.',
-    'pr-review-agent': 'An automated pull-request reviewer: deterministic static checks (secrets, debug leftovers, TODOs) plus a swappable LLM backend, CLI and API. Paste a diff, get a rendered Markdown review with severity chips.'
+    'pr-review-agent': 'An automated pull-request reviewer: deterministic static checks (secrets, debug leftovers, TODOs) plus a swappable LLM backend, CLI and API. Paste a diff, get a rendered Markdown review with severity chips.',
+    'support-agent': 'A support-ticket agent that may only say what the knowledge base says — and may only move money after a human approves it. Hybrid BM25 + dense retrieval drafts a cited resolution; refunds wait at an approval gate. Evals: 10/10 grounded, 0% hallucination on planted bait questions.',
+    'voice-agent': 'A voice receptionist for a dental clinic: talk to it in your browser (Web Speech API), book appointments and check orders through real function calls into a mock business system. Every turn is timed against an 800 ms latency budget; evals grade end state in the booking store, not transcripts.',
+    'deep-research-agent': 'A four-agent research pipeline — planner, researcher, critic, writer — where citation is structural: the writer only ever sees claims the critic token-verified against their sources. The researcher plants fabrications on purpose; the critic has to catch them (6 in, 6 caught, 0 leaked).',
+    'sql-agent': 'Ask a shop database questions in plain English. When the SQL is wrong, the agent reads the database error and repairs it against the live schema — bounded at two attempts, then it fails loudly instead of returning plausible wrong numbers. Evals compare row sets, never SQL strings.'
   };
   /* public demo URLs — deployed on Render, verified live 2026-09-21 */
   var DEMO = {
     'rag-service': 'https://tushar29k-rag-service.onrender.com',
     'agent-service': 'https://tushar29k-agent-service.onrender.com',
     'llm-service': 'https://tushar29k-llm-service.onrender.com',
-    'pr-review-agent': 'https://tushar29k-pr-review-agent.onrender.com'
+    'pr-review-agent': 'https://tushar29k-pr-review-agent.onrender.com',
+    'support-agent': 'https://tushar29k-support-agent.onrender.com',
+    'voice-agent': 'https://tushar29k-voice-agent.onrender.com',
+    'deep-research-agent': 'https://tushar29k-deep-research-agent.onrender.com',
+    'sql-agent': 'https://tushar29k-sql-agent.onrender.com'
   };
   var LANG_COLORS = { Python: '#3572A5', 'Jupyter Notebook': '#DA5B0B', Dockerfile: '#384D54', Shell: '#89E051' };
   var ACCENTS = ['#22D3EE', '#2DD4BF', '#A78BFA', '#F472B6'];
