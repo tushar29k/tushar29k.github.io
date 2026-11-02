@@ -9,7 +9,7 @@
     'AI Engineer',
     'LLM agents in production',
     'RAG & eval-first systems',
-    'Shipping something new every day'
+    'Building in the open'
   ];
   var typedEl = document.getElementById('typed');
   var ri = 0, ci = 0, deleting = false;
@@ -47,7 +47,7 @@
   /* ---------- moon, clouds, sea shimmer, sailing ship ---------- */
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var clouds = [];
-  for (var ci = 0; ci < 5; ci++) {
+  for (var cloudIdx = 0; cloudIdx < 5; cloudIdx++) {
     clouds.push({
       x: Math.random(), y: 0.06 + Math.random() * 0.32,
       s: 70 + Math.random() * 110, v: 0.000008 + Math.random() * 0.000012,
@@ -304,20 +304,21 @@
       var a = document.createElement('div');
       a.className = 'card';
       a.style.setProperty('--accent', accent);
+      var repoUrl = r.html_url || 'https://github.com/' + USER + '/' + r.name;
       var desc = BLURB[r.name] || r.description || 'Open-source AI project.';
       var demoUrl = DEMO[r.name];
       var demoBtn = demoUrl
         ? '<a class="mini-btn live" href="' + esc(demoUrl) + '" target="_blank" rel="noopener">Live demo ↗</a>'
-        : '<span class="mini-btn soon">Live demo · soon</span>';
+        : '';
       a.innerHTML =
         '<div class="card-top"><span class="rank" style="color:' + accent + '">' + ('0' + (idx + 1)).slice(-2) + '</span>' +
-        '<h3><a class="card-title-link" href="' + esc(r.html_url) + '" target="_blank" rel="noopener">' + esc(r.name) + '</a></h3><span class="spacer"></span>' +
+        '<h3><a class="card-title-link" href="' + esc(repoUrl) + '" target="_blank" rel="noopener">' + esc(r.name) + '</a></h3><span class="spacer"></span>' +
         '<span class="stars">★ ' + r.stargazers_count + '</span></div>' +
         '<p>' + esc(desc) + '</p>' +
         (topics ? '<div class="topics">' + topics + '</div>' : '') +
         '<div class="card-meta"><span class="dot" style="background:' + color + '"></span>' +
         esc(r.language || 'Code') + '</div>' +
-        '<div class="card-links"><a class="mini-btn" href="' + esc(r.html_url) + '" target="_blank" rel="noopener">Repo ↗</a>' +
+        '<div class="card-links"><a class="mini-btn" href="' + esc(repoUrl) + '" target="_blank" rel="noopener">Repo ↗</a>' +
         demoBtn + '</div>';
       grid.appendChild(a);
       io.observe(a);
