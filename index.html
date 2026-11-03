@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Tushar Kumar — AI Engineer</title>
-<meta name="description" content="Tushar Kumar — AI Engineer building LLM agents, RAG and eval-first AI systems. Based in Bengaluru, India." />
-<meta property="og:title" content="Tushar Kumar — AI Engineer" />
-<meta property="og:description" content="LLM agents, RAG and eval-first AI systems — in production at KPMG, and in the open on GitHub." />
+<title>Tushar — AI Engineer</title>
+<meta name="description" content="Tushar — AI Engineer building LLM agents, RAG and eval-first AI systems. Based in Bengaluru, India." />
+<meta property="og:title" content="Tushar — AI Engineer" />
+<meta property="og:description" content="LLM agents, RAG and eval-first AI systems — in production at KPMG, and open-sourced every day." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://tushar29k.github.io/" />
 <meta property="og:image" content="https://raw.githubusercontent.com/tushar29k/tushar29k/main/assets/banner.webp" />
@@ -66,7 +66,8 @@
 
 <section class="section" id="projects">
   <h2>Projects <span class="jp">作品</span></h2>
-  <p class="sub">Open-source systems I design, build and measure. Each card links the repo, plus a live demo where one is deployed.</p>
+  <p class="sub">Open-source systems I design, build and measure. Every one ships with evals — each card links the repo and a live demo.</p>
+  <p class="sub">📄 <a href="research.html" style="color:var(--teal);font-weight:600">Research note: how pattern-based guardrails fail</a> — the mutation-based adversarial benchmark of the agent-service detector, scored on attack success, false refusal and completion.</p>
   <div class="grid" id="project-grid">
     <div class="card skeleton" aria-hidden="true"><div class="sk-line sk-title"></div><div class="sk-line"></div><div class="sk-line short"></div></div>
     <div class="card skeleton" aria-hidden="true"><div class="sk-line sk-title"></div><div class="sk-line"></div><div class="sk-line short"></div></div>
@@ -78,7 +79,7 @@
 
 <section class="section" id="stack">
   <h2>Stack <span class="jp">技術</span></h2>
-  <p class="sub">Tools I've worked with, at KPMG and in my open-source projects.</p>
+  <p class="sub">The tools I reach for in production.</p>
   <div class="stack-group">
     <h3>LLM &amp; Agents</h3>
     <div class="pills">
@@ -113,21 +114,27 @@
       <span class="t-dot"></span>
       <div class="t-card featured">
         <div class="t-head"><h3>KPMG — GenAI Analyst</h3><span class="t-when">Sep 2024 – Present · Bengaluru</span></div>
-        <p>I design, build and run enterprise GenAI in production — agentic AI and RAG on the Azure AI stack and Google ADK, shipped through CI/CD across live business workflows.</p>
+        <p>I design, build and run enterprise GenAI in production — agentic AI and RAG on the Azure AI stack and Google ADK, shipped through CI/CD at 99.9% uptime across live business workflows.</p>
+        <div class="t-stats">
+          <div class="t-stat"><b>65%</b><span>less manual QA</span></div>
+          <div class="t-stat"><b>4×</b><span>faster releases</span></div>
+          <div class="t-stat"><b>500K+</b><span>résumés indexed</span></div>
+          <div class="t-stat"><b>&lt;200ms</b><span>query latency</span></div>
+          <div class="t-stat"><b>100K+</b><span>searches / day</span></div>
+          <div class="t-stat"><b>99.9%</b><span>uptime</span></div>
+        </div>
         <ul class="t-list">
-          <li><strong>Agentic QA automation</strong> — a multi-agent platform on Google ADK: one agent turns business requirement documents into Jira requirements, the next converts them into automated Playwright test cases. The LLM works through the tests on its own inside the QA tester's chat window, and brings in a human to take over when needed. Deployed at scale for multiple client companies: QA turnaround and the input each task needed from testers came down, so QA took on more tasks and sprints delivered more work.</li>
-          <li><strong>QA retrieval layer</strong> — designed end to end for that QA workflow: hybrid retrieval (keyword + semantic), smart chunking and re-ranking ground each test case in the exact requirement text, with fallback protocols so when one retrieval path degrades the system reroutes instead of failing.</li>
-          <li><strong>AI project-management platform (tech lead)</strong> — leading the technical team on a production platform on Azure, where specialist agents draft, cross-check and refine multiple document and workflow types, retrieving from prior project documents so new output stays consistent.</li>
-          <li><strong>Résumé matcher</strong> — a production candidate-matching platform at scale on Azure Cognitive Search and Azure OpenAI, combining keyword search with semantic matching so profiles rank by fit, not just keywords.</li>
-          <li><strong>Healthcare onboarding &amp; training agents</strong> — agent workflows that guide each new hire step by step, grounded in policy and training documents with cited answers, role-based learning paths and assessments.</li>
+          <li><strong>Agentic test-case generator</strong> — a multi-agent platform on Google ADK where specialised agents split the job: one reads and understands 10,000+ Jira requirements through RAG, another drafts the test cases with Gemini 2.5 Pro / GPT, and an MCP control plane keeps every agent's tools and context in sync. Manual QA effort fell 65% and release cycles run 4× faster.</li>
+          <li><strong>Résumé matcher</strong> — hybrid vector search over 500K+ indexed résumés on Azure Cognitive Search, re-ranked with Azure OpenAI. Recruiters get ranked shortlists in under 200ms — match accuracy up 40%, screening turnaround down 75%.</li>
+          <li><strong>Vector search at scale</strong> — multi-agent retrieval with fallback protocols, so when one retrieval path degrades the system reroutes instead of failing. Serves 100K+ search queries a day at sub-second latency.</li>
         </ul>
       </div>
     </div>
     <div class="t-item">
       <span class="t-dot"></span>
       <div class="t-card">
-        <div class="t-head"><h3>Open source</h3><span class="t-when">2026 – Present</span></div>
-        <p>Systems built in the open, led by four flagships — RAG, agents, LLM serving and PR review — each with a public repo and live demo.</p>
+        <div class="t-head"><h3>Open source — every day</h3><span class="t-when">2026 – Present</span></div>
+        <p>Four flagship systems built in the open — RAG, agents, LLM serving, PR review — each evolving with a real commit daily.</p>
       </div>
     </div>
     <div class="t-item">
@@ -144,7 +151,7 @@
   <h2>About <span class="jp">私について</span></h2>
   <div class="about-card">
     <p><strong>AI Engineer</strong> with 2 years shipping production GenAI at <strong>KPMG</strong> (Sep 2024 – present) — multi-agent pipelines, RAG over large document corpora, vector search at scale, and LoRA/QLoRA fine-tuning.</p>
-    <p>I build <strong>eval-first</strong>: I measure what I ship with evals. And I keep building <strong>in the open</strong>.</p>
+    <p>I build <strong>eval-first</strong>: every system ships with numbers, not vibes. And I open-source something new <strong>every single day</strong>.</p>
     <p class="muted">Azure AI-102 certified (2025) · Based in Bengaluru, India</p>
   </div>
 </section>
@@ -154,7 +161,6 @@
   <p class="sub">If you're hiring for AI engineering — or just want to talk agents and evals.</p>
   <div class="hero-btns">
     <a class="btn primary" href="mailto:maxtushar292001@gmail.com">maxtushar292001@gmail.com</a>
-    <a class="btn ghost" href="https://www.linkedin.com/in/tushar-kumar-b29340203" target="_blank" rel="noopener">LinkedIn ↗</a>
     <a class="btn ghost" href="https://github.com/tushar29k" target="_blank" rel="noopener">GitHub ↗</a>
   </div>
 </section>
