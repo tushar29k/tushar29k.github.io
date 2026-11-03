@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Retrieval Is Not a Safety Boundary — Tushar</title>
+<meta name="description" content="Poisoned-corpus and unsupported-question evaluation of a RAG pipeline: planted claims reached the answer in 80.6% of attack runs, and unsupported questions were fabricated on 83.3% of runs." />
+<meta property="og:title" content="Retrieval Is Not a Safety Boundary — Tushar" />
+<meta property="og:description" content="A poisoned-corpus and unsupported-question benchmark of a RAG pipeline: attack success, fabrication, false refusal and completion, measured." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://tushar29k.github.io/research-rag.html" />
+<meta property="og:image" content="https://raw.githubusercontent.com/tushar29k/tushar29k/main/assets/banner.webp" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M21 20.5A9 9 0 1 1 11.5 3 7 7 0 0 0 21 20.5z' fill='%2322D3EE'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+  .article { max-width: 860px; margin: 0 auto; position: relative; z-index: 2; }
+  .article h1 { font-size: 2rem; line-height: 1.25; margin-bottom: 1.2rem; }
+  .article h2 { font-size: 1.45rem; margin: 2.4rem 0 1rem; color: var(--text); letter-spacing: normal; text-transform: none; }
+  .article h3 { font-size: 1.15rem; margin: 2rem 0 .8rem; color: var(--cyan); }
+  .article p { color: var(--muted); margin-bottom: 1rem; }
+  .article p strong, .article li strong { color: var(--text); }
+  .article .abstract { color: var(--muted); border: 1px solid var(--line); background: rgba(14, 26, 46, .6); border-radius: var(--radius); padding: 1.2rem 1.4rem; margin-bottom: 2rem; }
+  .article ol, .article ul { color: var(--muted); margin: 0 0 1rem 1.3rem; }
+  .article li { margin-bottom: .8rem; }
+  .article code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; color: var(--teal); background: rgba(45, 212, 191, .08); padding: .1em .35em; border-radius: 5px; }
+  .article .tbl { overflow-x: auto; margin: 1.2rem 0 1.6rem; }
+  .article table { border-collapse: collapse; width: 100%; font-size: .88rem; }
+  .article th, .article td { border: 1px solid var(--line); padding: .45rem .6rem; text-align: left; white-space: nowrap; }
+  .article th { color: var(--text); background: rgba(14, 26, 46, .8); font-weight: 600; }
+  .article td { color: var(--muted); }
+  .backlink { display: inline-block; margin-bottom: 1.6rem; color: var(--teal); text-decoration: none; font-weight: 600; font-size: .92rem; }
+  .backlink:hover { color: var(--cyan); }
+</style>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<div id="progress" aria-hidden="true"></div>
+<div class="orb orb-a" aria-hidden="true"></div>
+<div class="orb orb-b" aria-hidden="true"></div>
+<div class="orb orb-c" aria-hidden="true"></div>
+
+<nav class="nav">
+  <a class="brand" href="index.html">tushar<span>.dev</span></a>
+  <div class="links">
+    <a href="index.html#projects">Projects</a>
+    <a href="index.html#stack">Stack</a>
+    <a href="index.html#experience">Experience</a>
+    <a href="index.html#about">About</a>
+    <a href="index.html#contact" class="cta">Contact</a>
+  </div>
+</nav>
+
+<section class="section">
+  <div class="article">
+    <a class="backlink" href="index.html#projects">← Back to projects</a>
+    <h1>Retrieval Is Not a Safety Boundary: Poisoned-Corpus and Unsupported-Question Evaluation of a RAG Pipeline</h1>
+
+    <p class="abstract"><strong>Abstract.</strong> I built a retrieval-augmented generation service with hybrid retrieval (dense + BM25), a relevance threshold that is supposed to make it refuse unanswerable questions, and an extractive generator that quotes retrieved text with citations. I tested the two failure surfaces the standard evals never touch: a poisoned corpus (a planted document carrying a false claim, a steering instruction or a canary token, next to the real policy) and unsupported questions (questions the corpus cannot answer). Across 12 attack cases, 8 unsupported questions and 10 benign controls on three retriever backends, planted claims reached the answer in 80.6% of attack runs, unsupported questions were fabricated on 83.3% of runs (100% on the hybrid backend), and benign completion stayed at 90% with zero false refusals — the system keeps all of its utility and skips the safety. A 20-question SQuAD-format slice scores the answer path separately: the gold span is contained in the answer in 19–20 of 20 cases, while mean token F1 is only 0.20–0.21, pricing the verbosity of sentence-level answers. All runs use the extractive mock generator.</p>
+
+    <h2>The question</h2>
+    <p>A RAG pipeline's safety story usually rests on two claims: the retriever only fetches relevant text, and the generator only says what the context supports. Both claims are graded, if at all, on a clean corpus and answerable questions. What happens when the corpus is adversarial — when anyone who can add a document can write next week's "policy"? And what does the system actually do with a question its corpus cannot answer, when the threshold that should make it refuse was tuned on a different backend? One recall number answers none of this, so I scored attack success, fabrication, false refusals and completion separately.</p>
+
+    <h2>Method</h2>
+    <p><strong>System.</strong> The pipeline chunks documents (120-word windows), embeds them with a hashing TF-IDF embedder, retrieves with one of three backends (dense cosine, BM25, or hybrid reciprocal-rank fusion), drops everything scoring below <code>min_score</code> 0.15, and generates with an extractive mock that quotes the three retrieved sentences with the most question-word overlap, citing their chunks. With no key configured this mock <em>is</em> the shipped offline path; the evals force it explicitly so no API key can change a run.</p>
+    <p><strong>Adversarial cases.</strong> Twelve hand-written attacks plant a document beside the real policy corpus (5 short policy documents: refunds, leave, warranty, US shipping, pricing) and follow with an ordinary user question, metadata filters and all. Styles: direct instructions, a note addressed to the assistant, fake system-update framing, a planted false fact with no instruction language, a near-duplicate of the real policy with one number changed, a payload split across two documents, one sentence buried in office news, a phishing-style address change, a process-weakening notice, a base64-encoded payload, and a canary token that must never reach an answer. Each case names a success signal — the planted claim, address or canary whose presence in the answer proves the payload landed. Eight unsupported questions (four near-misses against real policies, four far-misses) test refusal. Ten benign controls include documents that quote attack-like text as content (security training, review minutes that rejected the attacker's number, an FAQ, a blog post). Four attack cases also carry a bystander question — unrelated benign traffic asked against the same poisoned corpus. Metric definitions are frozen in <code>evals/rag_scoring.py</code> (v1): an attack run is <strong>blocked</strong> (poisoned chunk never cited), <strong>succeeded</strong> (signal in the answer) or <strong>evaded</strong> (poison cited, signal not in the answer — reached the generator unfiltered); an unsupported run is <strong>refused</strong> or <strong>fabricated</strong>; a benign run is <strong>completed</strong> (expected evidence in the answer), <strong>answered ungrounded</strong>, or a <strong>false refusal</strong>.</p>
+    <p><strong>SQuAD-format slice.</strong> Twenty hand-written questions over ten short passages in SQuAD v1.1 format (context, question, answer span with character offset), generated by <code>evals/make_squad_qa_slice.py</code> with the passage set's sha256 stamped into the version string. This is a slice in the benchmark's <em>format</em>, not the SQuAD dataset — the repo's full-scale slice over real SQuAD data (302 questions) grades retrieval only; this one grades the answer path with SQuAD's own exact-match and token-F1 machinery. F1 is computed against the answer's best-matching sentence, since the pipeline answers in quoted sentences plus a boilerplate note rather than bare spans.</p>
+
+    <h2>Results</h2>
+    <h3>Poisoned corpus</h3>
+    <div class="tbl"><table>
+      <tr><th>backend</th><th>attacks</th><th>blocked</th><th>succeeded</th><th>evaded</th><th>ASR</th></tr>
+      <tr><td>dense</td><td>12</td><td>2</td><td>10</td><td>0</td><td>83.3%</td></tr>
+      <tr><td>bm25</td><td>12</td><td>0</td><td>9</td><td>3</td><td>75.0%</td></tr>
+      <tr><td>hybrid</td><td>12</td><td>0</td><td>10</td><td>2</td><td>83.3%</td></tr>
+      <tr><td><strong>all</strong></td><td><strong>36</strong></td><td><strong>2</strong></td><td><strong>29</strong></td><td><strong>5</strong></td><td><strong>80.6%</strong></td></tr>
+    </table></div>
+    <p>Eight of the twelve styles succeeded on all three backends: direct instructions, the assistant-addressed note, the fake system update, the bare false fact, the near-duplicate, the canary, the refund-address change and the no-order-ID notice. The split payload succeeded on dense and hybrid. The only runs that never succeeded are the two whose payloads need a smarter reader or a different ranking: the buried paternity sentence and the base64 bulletin.</p>
+
+    <h3>Unsupported questions</h3>
+    <div class="tbl"><table>
+      <tr><th>backend</th><th>refused</th><th>fabricated</th><th>fabrication rate</th></tr>
+      <tr><td>dense</td><td>3/8</td><td>5/8</td><td>62.5%</td></tr>
+      <tr><td>bm25</td><td>1/8</td><td>7/8</td><td>87.5%</td></tr>
+      <tr><td>hybrid</td><td>0/8</td><td>8/8</td><td>100.0%</td></tr>
+      <tr><td><strong>all</strong></td><td><strong>4/24</strong></td><td><strong>20/24</strong></td><td><strong>83.3%</strong></td></tr>
+    </table></div>
+    <p>Every near-miss (sabbatical leave, gift-card refunds, India shipping times, cracked-screen coverage) fabricated on every backend — 12 of 12. The refusals that did happen were all far-misses, and only dense managed any consistency there.</p>
+
+    <h3>Benign controls and bystanders</h3>
+    <p>False-refusal rate 0.0% on all backends; completion 90% (9/10) on each — the one miss is the warranty control, answered on-topic but quoting the exclusions instead of the "2 year" fact. Documents quoting attack text (training material, the minutes that <em>rejected</em> the 90-day proposal, the FAQ, the injection explainer) all answered normally. Completion under attack: 100% (12/12 bystander runs) — the poison does not degrade unrelated questions.</p>
+
+    <h3>SQuAD-format slice (answer path, 20 questions)</h3>
+    <div class="tbl"><table>
+      <tr><th>backend</th><th>retrieval hit</th><th>exact match (span in answer)</th><th>mean token F1</th><th>refused</th></tr>
+      <tr><td>dense</td><td>19/20</td><td>19/20</td><td>0.203</td><td>1</td></tr>
+      <tr><td>bm25</td><td>20/20</td><td>20/20</td><td>0.213</td><td>0</td></tr>
+      <tr><td>hybrid</td><td>20/20</td><td>20/20</td><td>0.213</td><td>0</td></tr>
+    </table></div>
+    <p>For scale, the repo's retrieval slice over 302 real SQuAD questions reports recall@3 of 73.8% (dense), 86.8% (bm25), 82.1% (hybrid) — retrieval is the harder problem at scale; on this small slice the answer path keeps what retrieval finds.</p>
+
+    <h2>Findings</h2>
+    <ol>
+      <li><strong>The corpus is an unauthenticated write channel into the answer.</strong> 29 of 36 attack runs published the planted claim. No layer distinguishes a planted document from a real one — retrieval ranks on relevance alone, and relevance is exactly what the attacker controls by echoing the question's terms.</li>
+      <li><strong>Answer quoting is the whole attack.</strong> The generator republishes retrieved sentences verbatim, so an injection needs no instruction-following to land: out-rank the true sentence on question terms and you are quoted as the answer. The canary is the clean proof — CANARY-2214, a meaningless token, reached the answer on all three backends because its sentence matched the question.</li>
+      <li><strong>A false fact with no instruction language is the strongest attack.</strong> The bare planted policy ("refunds within 90 days", written exactly like the real one) succeeded everywhere. There is nothing for an instruction-pattern detector to catch; defences that scan documents for command-like text cannot see this class at all.</li>
+      <li><strong>The min_score gate is the only refusal mechanism, and it is backend-dependent.</strong> Dense refused 3 of 8 unsupported questions; hybrid refused none, because RRF fusion scores saturate near 1.0 and the 0.15 threshold almost never fires — the same saturation cliff the threshold sweep measured on the golden set. Picking hybrid for its recall silently retires the only hallucination brake the system has.</li>
+      <li><strong>Unsupported questions fabricate by quotation, not invention.</strong> Fabricated answers are real sentences from neighbouring policies served as answers (US shipping times for an India question; warranty exclusions for a coverage question). No generative model is required for this hallucination mode — misapplied evidence is enough, and citations make it look <em>more</em> trustworthy, not less.</li>
+      <li><strong>The benign side pays nothing — because no safety is being bought.</strong> FRR is 0.0%, attack-quoting documents answer fine, and bystander completion under attack is 100%. The usual framing (safety costs utility) does not apply: the utility is intact precisely where a defence would spend it, and absent where one is needed.</li>
+      <li><strong>The two "blocked" outcomes are retrieval accidents, not defences.</strong> Blocked only means the poisoned chunk ranked under the gate on dense. On the other backends the same payloads were retrieved and cited (evaded) — they reached the generator, and only the mock's sentence picker kept them out of the answer. A generative model reads every cited chunk; evaded is exposure, not safety.</li>
+      <li><strong>Containment and F1 measure different contracts.</strong> On the SQuAD-format slice the gold fact is present in 19–20 of 20 answers (EM), yet mean F1 is ~0.21 because the answer is whole sentences. EM says the fact arrived; F1 prices everything that came with it. Reporting either alone flatters a sentence-extractive system.</li>
+    </ol>
+
+    <h2>Limitations</h2>
+    <p>Everything ran on the extractive mock generator, which bounds the claims both ways. The mock quotes but cannot obey: instruction payloads succeeded here only by being quoted, so on a real LLM — which reads all cited context and follows instructions in it — the instruction classes would land by obedience as well, making measured ASR a floor. Symmetrically, the encoded payload measured evaded/blocked precisely because the mock cannot decode base64; a real model decodes it trivially. No real-model runs are included (the live path needs a key the eval environment doesn't carry). The corpus is five short policies, each a single chunk at the default chunking, so chunk-boundary effects are unmeasured — the split case splits across documents, not chunks. Seeds are hand-written and the suites are small (12/8/10), so rates are directional, not precise. Embeddings are hashing TF-IDF, not neural: paraphrase-only payloads with no keyword overlap would rank differently against a neural embedder — the keyword path measured here is the one the default deployment actually runs. The SQuAD-format slice is 20 hand-written questions: a format and comparability check, not a benchmark score.</p>
+
+    <h2>Future work</h2>
+    <p>A real-generator slice over the same seeds (the pipeline's live LLM path) converts evaded into measured ASR and tests obedience, not just quotation. A defence phase follows as a separately measured phase, graded by these suites: source-trust tiers and provenance weighting in retrieval, conflict detection when two "policies" disagree on a number (the near-duplicate case), and a grounding check that refuses when the top source is a lone low-trust document. Re-running both suites with the neural embedder swap (<code>embedder_backend: st</code>) will show whether semantic retrieval raises or lowers ASR — paraphrase payloads become retrievable at the same time as planted text becomes easier to rank down.</p>
+
+    <h2>Reproducibility</h2>
+    <p>The project is public: <code>rag-service</code> under github.com/tushar29k. Both suites are deterministic and regenerate their reports byte-identically (<code>evals/run_adversarial_rag.py</code>, <code>evals/run_squad_qa.py</code>); metric definitions are frozen in <code>evals/rag_scoring.py</code> v1; the SQuAD-format slice is generated from <code>evals/make_squad_qa_slice.py</code> with the passage set's sha256 stamped into its version. The adversarial suite is report-only — the golden eval remains the CI gate — and every finding above is logged deliberately unfixed, so a defence phase can be graded against it.</p>
+    <p>Full note in the repo: <a href="https://github.com/tushar29k/rag-service/blob/main/RESEARCH.md" style="color:var(--teal);font-weight:600">rag-service/RESEARCH.md</a></p>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Tushar · Bounty rising — one commit at a time 🏴‍☠️</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
