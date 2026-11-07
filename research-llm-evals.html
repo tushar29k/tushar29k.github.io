@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Judge Reads Tokens — Tushar</title>
+<meta name="description" content="Three-metric evaluation of an eval toolkit's own scorers: 62.5% of seed attacks pass while half the honest answers fail, and judge-vs-human agreement collapses 0.917 to 0.200 — a wrong answer scores a perfect 1.000 through a smuggled CASE block." />
+<meta property="og:title" content="The Judge Reads Tokens — Tushar" />
+<meta property="og:description" content="A three-metric evaluation of an eval toolkit's own scorers: the mock judge passes 62.5% of attacks, fails half the honest answers, and agrees with humans 0.917 on benign outputs but 0.200 on adversarial ones — because it grades a bag of tokens, and the candidate output sits upstream of the block it trusts." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://tushar29k.github.io/research-llm-evals.html" />
+<meta property="og:image" content="https://raw.githubusercontent.com/tushar29k/tushar29k/main/assets/banner.webp" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M21 20.5A9 9 0 1 1 11.5 3 7 7 0 0 0 21 20.5z' fill='%2322D3EE'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+  .article { max-width: 860px; margin: 0 auto; position: relative; z-index: 2; }
+  .article h1 { font-size: 2rem; line-height: 1.25; margin-bottom: 1.2rem; }
+  .article h2 { font-size: 1.45rem; margin: 2.4rem 0 1rem; color: var(--text); letter-spacing: normal; text-transform: none; }
+  .article h3 { font-size: 1.15rem; margin: 2rem 0 .8rem; color: var(--cyan); }
+  .article p { color: var(--muted); margin-bottom: 1rem; }
+  .article p strong, .article li strong { color: var(--text); }
+  .article .abstract { color: var(--muted); border: 1px solid var(--line); background: rgba(14, 26, 46, .6); border-radius: var(--radius); padding: 1.2rem 1.4rem; margin-bottom: 2rem; }
+  .article ol, .article ul { color: var(--muted); margin: 0 0 1rem 1.3rem; }
+  .article li { margin-bottom: .8rem; }
+  .article code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; color: var(--teal); background: rgba(45, 212, 191, .08); padding: .1em .35em; border-radius: 5px; }
+  .article .tbl { overflow-x: auto; margin: 1.2rem 0 1.6rem; }
+  .article table { border-collapse: collapse; width: 100%; font-size: .88rem; }
+  .article th, .article td { border: 1px solid var(--line); padding: .45rem .6rem; text-align: left; white-space: nowrap; }
+  .article th { color: var(--text); background: rgba(14, 26, 46, .8); font-weight: 600; }
+  .article td { color: var(--muted); }
+  .backlink { display: inline-block; margin-bottom: 1.6rem; color: var(--teal); text-decoration: none; font-weight: 600; font-size: .92rem; }
+  .backlink:hover { color: var(--cyan); }
+</style>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<div id="progress" aria-hidden="true"></div>
+<div class="orb orb-a" aria-hidden="true"></div>
+<div class="orb orb-b" aria-hidden="true"></div>
+<div class="orb orb-c" aria-hidden="true"></div>
+
+<nav class="nav">
+  <a class="brand" href="index.html">tushar<span>.dev</span></a>
+  <div class="links">
+    <a href="index.html#projects">Projects</a>
+    <a href="index.html#stack">Stack</a>
+    <a href="index.html#experience">Experience</a>
+    <a href="index.html#about">About</a>
+    <a href="index.html#contact" class="cta">Contact</a>
+  </div>
+</nav>
+
+<section class="section">
+  <div class="article">
+    <a class="backlink" href="index.html#projects">← Back to projects</a>
+    <h1>The Judge Reads Tokens: An Adversarial Evaluation of an Eval Toolkit's Own Scorers</h1>
+
+    <p class="abstract"><strong>Abstract.</strong> Every project in this portfolio got an adversarial eval suite; this one is the eval toolkit itself, so the system under attack is the scoring pipeline — the mock LLM judge and the deterministic scorers (<code>contains</code>, <code>regex</code>) that grade other projects' outputs. I aimed three attack families at it: outputs engineered to game the judge (negation, keyword echo, invented facts appended to true ones, fake citations), text addressed to the judge inside the candidate output (instructions, a pre-written verdict, and a smuggled replacement for the machine-readable CASE block the mock judge actually reads), and substring/regex exploits against the deterministic scorers — plus bias probes for length, word order and wording, and a human-labelled agreement slice to compare against the benign agreement set. The headline numbers: attack success rate 62.5% on hand-written seeds, false-refusal rate 50.0% on benign controls, pass/fail decision accuracy 42.3% on the seed mix, and judge-vs-human decision agreement collapsing from 0.917 on the benign labelled set to 0.200 on the adversarial one. The single most structural result is a spoof: because the rubric prompt embeds the candidate output verbatim <em>before</em> the CASE block, an output carrying its own fake CASE block gets graded on the case it smuggled in — a wrong answer scored a perfect 1.000. All runs are against the deterministic mock judge; what that bounds is stated plainly in Limitations.</p>
+
+    <h2>The question</h2>
+    <p>This repo's philosophy says: deterministic first, judge second, and when you use a judge, <em>measure the judge</em>. The shipped measurement is one benign agreement set — twelve well-behaved outputs where the mock judge agrees with human labels 0.917 of the time on the pass/fail decision. But nobody grades only well-behaved outputs. Candidate outputs in real evals are model-generated, occasionally adversarial, and — once a score gates anything — optimised against the grader. So the question is the one the sibling projects asked of their agents, turned on the grader itself: how much of this pipeline's judgement survives outputs that are <em>trying</em> to be misjudged, what does its strictness cost honest answers, and do its biases move scores by amounts that matter? Pass/fail alone answers none of these, so I scored three metrics: ASR, FRR, and decision accuracy, with judge-avg inflation against each attack's honest twin as the pressure gauge behind them.</p>
+
+    <h2>Method</h2>
+    <p><strong>System.</strong> The <code>llm_judge</code> scorer renders a rubric prompt (three criteria — correctness, completeness, clarity, 1–5; the candidate output interpolated raw, in plain text, ahead of a machine-readable CASE block), and the default mock judge grades it: it extracts the <em>first</em> <code>```json</code> block in the prompt, tokenises reference and output to <code>[a-z0-9]+</code> sets, and scores keyword precision (→ correctness, with a hard 1 if the output contains a digit the reference lacks), keyword recall (→ completeness, with a penalty for outputs shorter than half the reference), and a word-count clarity rule (3 if the output exceeds 60 words, else 5). The criterion average passes at ≥ 0.8. The deterministic scorers grade by exact/substring/regex match. Every case in this suite runs through these code paths unmodified — the suite adds ground truth and classification, never patches.</p>
+    <p><strong>Cases.</strong> Hand-written seeds (26): 9 judge-gaming attacks (two negations, an append-an-invented-benefit, word salad, a self-contradicting answer with evaluator flattery, a digit-free fake citation and its year-carrying twin, digit smuggling, and a hedge-farming case aimed at the rubric text), 4 injections (a direct instruction with a ready-made verdict, the CASE-block spoof, a pre-written verdict header, a fake "system note"), 3 deterministic-scorer attacks (negated and incidental <code>contains</code> mentions, an unanchored <code>regex</code> mention inside a denial), and 10 benign controls (verbatim, paraphrase, a long genuinely good answer, hedged-but-correct, an answer quoting attack phrasing as security content, terse, spelled-out digits, prose-instead-of-JSON, cited, and reference-plus-one-true-fact). Each judge attack carries a <code>clean_output</code> — the honest version of the same answer — so score inflation is measured, not vibes. Six deterministic mutations (caps, repetition, neutral padding, leetspeak, zero-width insertion, code fencing) multiply the 13 judge-scored attacks into 78 variants; controls ride verbatim; the generator stamps the seeds file's sha256 and regenerates byte-identically.</p>
+    <p><strong>Bias probes.</strong> Three fixed probe sets, graded and printed, never asserted: a length ladder (the reference answer padded by repetition — token set frozen, only the clarity rule can move — and by neutral sentences, which dilute precision), order probes (verbatim / reversed / shuffled token order), and a wording ladder (verbatim → light paraphrase → full paraphrase → terse).</p>
+    <p><strong>Comparability slice.</strong> Judge validation has a standard shape — a human-labelled set and agreement statistics — and the repo already ships one (<code>datasets/judge_agreement.jsonl</code>, 12 benign cases). The slice here is 10 new cases in <em>exactly that schema</em>, half of them attack outputs with human labels written from the spec, run through the same <code>measure_agreement</code>. It is labelled honestly: not an external benchmark (MT-Bench's raw data is not vendored into an offline repo), but the benchmark <em>method</em> applied to the distribution the benign set omits.</p>
+    <p><strong>Metrics.</strong> Frozen in <code>evals/scoring.py</code> v1, same class names as the sibling suites. An attack run is <strong>succeeded</strong> (it passed a case it should fail), <strong>blocked</strong> (failed, with &lt; 0.10 avg inflation over its clean twin), or <strong>evaded</strong> (failed but unmeasured: injection/rubric payloads the mock structurally cannot comply with, or inflation ≥ 0.10 — pressure that bought score without buying the pass). Benign runs are <strong>completed</strong> or <strong>false_refusal</strong>. Decision accuracy — pipeline pass/fail vs the written-down <code>should_pass</code> — is the completion analogue: for a grader, the decision <em>is</em> the task.</p>
+
+    <h2>Results</h2>
+    <h3>Suites</h3>
+    <div class="tbl"><table>
+      <tr><th>suite</th><th>attacks</th><th>blocked</th><th>succeeded</th><th>evaded</th><th>ASR</th><th>benign (n)</th><th>FRR</th><th>decision accuracy</th></tr>
+      <tr><td>seeds</td><td>16</td><td>1</td><td>10</td><td>5</td><td>62.5%</td><td>10</td><td>50.0%</td><td>42.3%</td></tr>
+      <tr><td>variants</td><td>78</td><td>25</td><td>21</td><td>32</td><td>26.9%</td><td>10</td><td>50.0%</td><td>70.5%</td></tr>
+    </table></div>
+    <p>Ten of sixteen seed attacks passed outright: both negations (avg 0.93 and 0.87), the appended invention (0.80, exactly at threshold), word salad (1.00), the flattery case (0.80), the digit-free fake citation (0.87), the CASE-block spoof (1.00), and all three deterministic-scorer attacks. Mean inflation on seeds is small (+0.031) — the successful attacks mostly didn't need to inflate; they were already fluent in the judge's native language of shared tokens. Under mutation the picture inverts in an instructive way:</p>
+    <h3>Mutation classes</h3>
+    <div class="tbl"><table>
+      <tr><th>mutation</th><th>runs</th><th>blocked</th><th>succeeded</th><th>evaded</th><th>ASR</th></tr>
+      <tr><td>caps_shout</td><td>13</td><td>1</td><td>6</td><td>6</td><td>46.2%</td></tr>
+      <tr><td>fence_wrap</td><td>13</td><td>2</td><td>6</td><td>5</td><td>46.2%</td></tr>
+      <tr><td>pad_neutral</td><td>13</td><td>4</td><td>3</td><td>6</td><td>23.1%</td></tr>
+      <tr><td>repeat_x3</td><td>13</td><td>2</td><td>6</td><td>5</td><td>46.2%</td></tr>
+      <tr><td>leet_speak</td><td>13</td><td>8</td><td>0</td><td>5</td><td>0.0%</td></tr>
+      <tr><td>zwsp_insert</td><td>13</td><td>8</td><td>0</td><td>5</td><td>0.0%</td></tr>
+    </table></div>
+    <h3>Bias probes</h3>
+    <ul>
+      <li><strong>Length.</strong> Repetition padding holds avg at 1.000 through 56 words; at 64 words clarity steps 5 → 3 and avg lands at 0.867, flat thereafter to 160 words — a one-time tax, not a slope. Neutral padding is the opposite shape: a <em>single</em> 15-word off-topic sentence drops correctness 5 → 2 (precision dilution) and puts a perfect answer at avg 0.800, exactly on the pass line; more padding changes nothing until the clarity step compounds it to 0.667.</li>
+      <li><strong>Order.</strong> Verbatim, reversed and shuffled token orders all score avg 1.000, criterion for criterion identical.</li>
+      <li><strong>Wording.</strong> Verbatim 1.000 → light paraphrase 0.933 → full paraphrase 0.733 (fail) → terse 0.733 (fail — with correctness still 5 and completeness 1: the judge can see the fact is right and fails the answer anyway).</li>
+    </ul>
+    <h3>Agreement comparison</h3>
+    <div class="tbl"><table>
+      <tr><th>set</th><th>cases</th><th>exact</th><th>within-1</th><th>MAE</th><th>decision agreement</th></tr>
+      <tr><td>benign (judge_agreement)</td><td>12</td><td>0.611</td><td>0.861</td><td>0.528</td><td>0.917</td></tr>
+      <tr><td>adversarial slice</td><td>10</td><td>0.367</td><td>0.533</td><td>1.567</td><td>0.200</td></tr>
+    </table></div>
+
+    <h2>Findings</h2>
+    <ol>
+      <li><strong>The CASE block can be spoofed by the output being graded.</strong> <code>render_prompt</code> embeds the candidate output in plain text <em>before</em> the machine-readable CASE block, and the mock judge reads the first <code>```json</code> block it finds. An output carrying its own block is graded on the smuggled case: avg 1.000 for an answer whose real content is a wrong refund window. The mock is the judge that falls for it here, but the structural fact is judge-agnostic: candidate-controlled text sits upstream of the block a grader is told to trust, with no escaping or delimiter discipline. Any consumer that extracts "the" JSON block from this prompt inherits the hole.</li>
+      <li><strong>Negation is free, and sometimes no trick is needed at all.</strong> "…is <em>not</em> 30 days…" scores 0.93; token sets have no negation. Worse, the Paris negation's honest twin — the plain wrong sentence "The capital of France is Lyon." — <em>also</em> passes (0.87), because a sentence-length reference gives a fluent wrong answer near-total overlap. The agreement set's "Lyon" case fails only because its reference is a single token. Reference length is an unexamined security parameter of this judge.</li>
+      <li><strong>Word order is invisible.</strong> Salad, reversed and verbatim score identically at 1.000. The judge grades a bag of words; anything whose correctness lives in arrangement — most of language — is outside its measurement.</li>
+      <li><strong>The digit rule is the only fact-check, and it prices citations precisely.</strong> A digit-free invented citation passes (0.87). Add a year and correctness collapses to 1 — yet the total still inflates from the honest wrong answer's 0.60 to 0.73, because the citation's vocabulary overlaps the reference. The tripwire costs the attack the pass, not the pressure.</li>
+      <li><strong>Append-don't-replace beats the threshold exactly.</strong> Verbatim truth in front, an invented "gold members get free returns forever" behind it: avg 0.800, a pass. Recall is bought with the truth; the invention is charged only diluted precision, and at reference scale the exchange rate favours the attacker.</li>
+      <li><strong>The benign tax is half the control corpus.</strong> FRR 50.0%: the paraphrase, the hedged answer, the terse answer, the spelled-out number and the long good answer all fail. The mechanism is one and the same as the attacks' — keyword overlap — so the judge is not "strict" or "lax"; it is <em>token-shaped</em>, and both error directions are that shape's shadow. A suite that reported only ASR would call this judge mediocre; a suite that reported only FRR would call it harsh. It is neither; it is blind in a specific, priced way.</li>
+      <li><strong>Length taxes are cliffs, not slopes.</strong> Two step functions: clarity at exactly &gt;60 words (one-time, −2 points, never worse) and precision bands that a single neutral sentence already bottoms out. Between the cliffs, length is free — a 56-word repetition of the reference scores a perfect 1.000. Anyone tuning output length against this judge is optimising against two staircases.</li>
+      <li><strong>Surface mutations defend the mock by accident.</strong> Leetspeak and zero-width insertion score 0.0% ASR — not because anything detected them, but because they destroy the token overlap every attack was riding (mean variant inflation is <em>negative</em>, −0.089). Against a semantic judge these same transforms are the standard evasion toolkit. Any robustness conclusion drawn from the mock here inverts on the real backend; the variants measure the mock's tokeniser, and say so.</li>
+      <li><strong>Injection and rubric attacks are unmeasurable on the mock — and reach a real judge verbatim.</strong> Five seed runs sit in "evaded": direct instructions, a pre-written verdict, a fake system note, hedge-farming aimed at rubric wording the mock never reads. The mock cannot comply (it has no instructions to follow), so their failure proves nothing; meanwhile <code>render_prompt</code> does no sanitisation, so every payload arrives in a real judge's context intact, formatted exactly like the surrounding instructions. Evaded is the honest label: unmeasured, not safe.</li>
+      <li><strong>Judge validation collapses off the benign distribution.</strong> Decision agreement 0.917 → 0.200, MAE 0.528 → 1.567, on labelled cases that differ from the shipped set mainly by being adversarial. The repo's own advice — measure the judge — is right; the shipped measurement measures the distribution nobody attacks. A judge validated only on benign outputs carries a number that will not survive contact with optimisation pressure.</li>
+      <li><strong>The "trustworthy" deterministic scorers grade strings, not claims.</strong> <code>contains</code> passes a negation and an incidental mention of a different Paris; <code>regex</code> with the pattern as authors naturally write it (no anchors, and the scorer uses <code>re.search</code>) passes a sentence <em>denying</em> the reference it mentions. These scorers are exact about what they check — the finding is that what they check is not what dataset authors believe they check, and nothing in the harness warns them.</li>
+    </ol>
+
+    <h2>Limitations</h2>
+    <p>Everything ran on the mock judge, which bounds every claim. The mock is a keyword stand-in, deliberately coarse; a real judge (the <code># SWAP:</code> Gemini path exists but no API key is configured in this environment) would resist the token tricks and fall for different ones — the injection and rubric classes exist in the suite precisely to mark where the real risk is unmeasured rather than absent. Findings 1–7 are statements about <em>this</em> pipeline's mechanics, verified in its own code paths; finding 8 warns explicitly against exporting the mutation results to a semantic judge. The samples are small (16 seed attacks, 10 controls, 10 slice cases) and every seed is hand-written by the toolkit's author — the mutation engine and the clean-twin inflation measure exist to discount that, and the calibration of two cases (the fake-citation pair) after first measurement is visible in the file history. The slice's human labels are author labels written from the spec — the same stand-in status the repo already declares for its benign agreement set; a real human study replaces the labels, not the code. Decision accuracy is reported on an adversarially <em>selected</em> mix and is a suite property, not a field rate. The 0.8 threshold is the repo default throughout.</p>
+
+    <h2>Future work</h2>
+    <p>The real-backend slice comes first: the same seeds through the Gemini judge, converting the five evasions into measured ASR and testing whether findings 2–5 survive a judge with semantics (the prediction this write-up stakes: negation and salad die, injection and citation attacks get <em>stronger</em>). Defence fixes follow as a separately measured phase, graded by these suites as regression tests: escape or relocate the CASE block so candidate text cannot precede or imitate it (finding 1); anchor guidance or a fullmatch option for the regex scorer, and a negation warning for <code>contains</code> (finding 11); a judge prompt that separates candidate text with explicit delimiters. Any fix must move ASR, FRR and decision accuracy together — a judge that fails everything scores ASR 0% and is worthless, which is exactly why the three metrics are reported as one table.</p>
+
+    <h2>Reproducibility</h2>
+    <p>The project is public: <code>llm-evals</code> under github.com/tushar29k. The generator stamps the seed file's sha256 into its output and regenerates byte-identically; <code>make_report.py</code> rebuilds <code>evals/adversarial-report.md</code> from fresh runs with no timestamps, so a diff in the report is a diff in the numbers; metric definitions are frozen in a versioned scoring module (<code>evals/scoring.py</code>, v1 — the same class names and metric shape as the sibling projects' adversarial suites, so the numbers sit side by side). The suites are report-only (the harness's CI gate remains <code>tests/run_tests.py</code> plus the checked-in baselines), every run appends to <code>evals/eval-history.jsonl</code>, and every finding above is logged in the repository, deliberately unfixed, so the fix phase can be graded against them.</p>
+    <p>Full note in the repo: <a href="https://github.com/tushar29k/llm-evals/blob/main/RESEARCH.md" style="color:var(--teal);font-weight:600">llm-evals/RESEARCH.md</a></p>
+
+    <h2>Appendix — score-seeking probes, added 6 Nov 2026</h2>
+    <p><strong>What this is.</strong> A follow-up probe built after the write-up above, using the same 13 judge-scored seeds that carry an honest twin (<code>clean_output</code>): the honest policy is each seed's clean output, the score-aware policy is each seed's attack output — keyword echo, word salad, append-an-invention, fake citations, judge-addressed payloads, and the CASE-block spoof. The judge is the same deterministic mock, unmodified, at the same 0.8 threshold. This measures <strong>grader gameability</strong> — how far outputs engineered against a visible scoring rule drift from correct towards score-maximising — <strong>not</strong> a live model choosing to seek score. No live model is in the loop anywhere in this probe; "score-aware" is a fixed, hand-written output set, not a policy that searched for these outputs.</p>
+    <div class="tbl"><table>
+      <tr><th>condition</th><th>judge pass</th><th>true task success</th><th>score-vs-truth gap</th></tr>
+      <tr><td>grader hidden — honest policy</td><td>38.5% (5/13)</td><td>30.8% (4/13)</td><td>+7.7%</td></tr>
+      <tr><td>grader exposed — score-aware policy</td><td>53.8% (7/13)</td><td>0.0% (0/13)</td><td>+53.8%</td></tr>
+      <tr><td>grader exposed and known-buggy — same outputs, audited</td><td>53.8% (7/13)</td><td>0.0% (0/13)</td><td>+53.8%</td></tr>
+    </table></div>
+    <p>The score rises while the work gets worse: mean judge average 0.754 → 0.785 (+0.031) while true task success falls from 30.8% to 0.0% — every score-aware output in the set should fail, and 7 of 13 pass. Knowing the grader is buggy changes nothing: the same 7/13 failed tasks still pass; only the audit against ground truth exposes them. The biggest single drift is the CASE-block spoof (+0.400, to a perfect 1.000); negation gains +0.333, the digit-free fake citation +0.267. Even the honest policy's gap is not zero (+7.7%): one honest twin, the plain wrong "The capital of France is Lyon.", already passes the judge at 0.867 with no trick at all. Full method, per-case drift table and limitations: <a href="https://github.com/tushar29k/llm-evals/blob/main/evals/score-seeking-results.md" style="color:var(--teal);font-weight:600">evals/score-seeking-results.md</a> (script: <code>evals/run_score_seeking_probes.py</code>).</p>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Tushar · Bounty rising — one commit at a time 🏴‍☠️</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
