@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Close Enough to Be Wrong — Tushar</title>
+<meta name="description" content="Three-metric evaluation of a semantic cache's two-tier lookup: one-token changes sit at cosine 0.909–0.966, negation scores 0.9661 above the honest paraphrase, and no threshold fixes it — at 0.99 the overwrite, plant and role swap still succeed while completion falls 80% to 60%." />
+<meta property="og:title" content="Close Enough to Be Wrong — Tushar" />
+<meta property="og:description" content="A three-metric evaluation of a semantic cache's two-tier lookup: attack success 76.5% on seeds and 92.9% on variants, PAWS-style accuracy 43.8% — below chance — because the cache calls nearly every adversarial not-paraphrase a paraphrase, and no threshold setting fixes it." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://tushar29k.github.io/research-semantic-cache.html" />
+<meta property="og:image" content="https://raw.githubusercontent.com/tushar29k/tushar29k/main/assets/banner.webp" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M21 20.5A9 9 0 1 1 11.5 3 7 7 0 0 0 21 20.5z' fill='%2322D3EE'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+  .article { max-width: 860px; margin: 0 auto; position: relative; z-index: 2; }
+  .article h1 { font-size: 2rem; line-height: 1.25; margin-bottom: 1.2rem; }
+  .article h2 { font-size: 1.45rem; margin: 2.4rem 0 1rem; color: var(--text); letter-spacing: normal; text-transform: none; }
+  .article h3 { font-size: 1.15rem; margin: 2rem 0 .8rem; color: var(--cyan); }
+  .article p { color: var(--muted); margin-bottom: 1rem; }
+  .article p strong, .article li strong { color: var(--text); }
+  .article .abstract { color: var(--muted); border: 1px solid var(--line); background: rgba(14, 26, 46, .6); border-radius: var(--radius); padding: 1.2rem 1.4rem; margin-bottom: 2rem; }
+  .article ol, .article ul { color: var(--muted); margin: 0 0 1rem 1.3rem; }
+  .article li { margin-bottom: .8rem; }
+  .article code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; color: var(--teal); background: rgba(45, 212, 191, .08); padding: .1em .35em; border-radius: 5px; }
+  .article .tbl { overflow-x: auto; margin: 1.2rem 0 1.6rem; }
+  .article table { border-collapse: collapse; width: 100%; font-size: .88rem; }
+  .article th, .article td { border: 1px solid var(--line); padding: .45rem .6rem; text-align: left; white-space: nowrap; }
+  .article th { color: var(--text); background: rgba(14, 26, 46, .8); font-weight: 600; }
+  .article td { color: var(--muted); }
+  .backlink { display: inline-block; margin-bottom: 1.6rem; color: var(--teal); text-decoration: none; font-weight: 600; font-size: .92rem; }
+  .backlink:hover { color: var(--cyan); }
+</style>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<div id="progress" aria-hidden="true"></div>
+<div class="orb orb-a" aria-hidden="true"></div>
+<div class="orb orb-b" aria-hidden="true"></div>
+<div class="orb orb-c" aria-hidden="true"></div>
+
+<nav class="nav">
+  <a class="brand" href="index.html">tushar<span>.dev</span></a>
+  <div class="links">
+    <a href="index.html#projects">Projects</a>
+    <a href="index.html#stack">Stack</a>
+    <a href="index.html#experience">Experience</a>
+    <a href="index.html#about">About</a>
+    <a href="index.html#contact" class="cta">Contact</a>
+  </div>
+</nav>
+
+<section class="section">
+  <div class="article">
+    <a class="backlink" href="index.html#projects">← Back to projects</a>
+    <h1>Close Enough to Be Wrong: An Adversarial Evaluation of a Semantic Cache</h1>
+
+    <p class="abstract"><strong>Abstract.</strong> Every project in this portfolio got an adversarial eval suite; this one's system under attack is the cache itself — the two-tier lookup (exact match, then embedding similarity at a 0.90 threshold) that decides whether a question has already been answered. I aimed three attack families at it: cache poisoning (planted entries with wrong answers, including one planted through the service's own store-on-miss path), one-token boundary crossings (negation, number, entity and date swaps that leave a prompt almost identical but change its answer), and threshold probing (similarity ladders and a full threshold sweep), plus benign controls and a hand-written PAWS-style paraphrase slice. The headline numbers: attack success rate 76.5% on hand-written seeds and 92.9% on generated variants, false-hit rate 0.0% on unrelated questions, benign completion 80.0% — and PAWS-style accuracy of 43.8%, below chance, because the cache calls nearly every adversarial not-paraphrase a paraphrase. The structural result: at the lengths real support questions have, a single meaning-changing token sits at cosine 0.909–0.966, <em>inside</em> the band the cache treats as "same question" — and a subject/object swap scores a perfect 1.000. All runs use the repo's deterministic hash embedder; what that bounds is stated plainly in Limitations.</p>
+
+    <h2>The question</h2>
+    <p>The shipped eval (day 6) reports one number — a 0.667 hit rate on a synthetic workload — and one safety property: six unrelated questions miss. Both are true, and neither addresses the risk a semantic cache actually carries. A cache's failure mode is not answering a stranger's question from memory; it is answering a <em>neighbour's</em> question with the wrong entry, and amplifying one bad answer to everyone who asks anything similar. So the questions are: can an attacker get a wrong answer stored and then served to other people's phrasings? How small a change to a prompt still inherits the original's answer? And is the 0.90 threshold a dial that trades those risks against each other, or a coarser instrument than it looks?</p>
+    <p>Pass/fail cannot answer these, so I scored three metrics: attack success rate (ASR — the wrong response was served), false-hit rate (FHR — a must-miss question was served from cache, the false-refusal analogue for a system whose refusal <em>is</em> the model call), and benign completion (paraphrases hit with the right answer, distinct questions miss).</p>
+
+    <h2>Method</h2>
+    <p><strong>System.</strong> The FastAPI service in <code>semantic_cache/service.py</code>, unmodified: tier 1 is exact match on the normalised prompt (SQLite, <code>INSERT OR REPLACE</code>, 24 h TTL); tier 2 embeds the prompt with the default <code>HashEmbedder</code> (each token hashed into one of 256 dimensions, count vectors, cosine similarity) and serves the best-matching stored prompt's response iff similarity ≥ threshold (default 0.90). A miss calls the model and <em>stores the result in both tiers</em>. Every case runs through the public HTTP API against fresh in-memory tiers; the model is a deterministic stub whose answers carry a marker no stored response uses, so a miss is unmistakable. The suite adds cases and classification, never patches.</p>
+    <p><strong>Cases.</strong> Hand-written seeds (13 cases, 17 attack runs): four poisoning cases — a superset plant (a near-copy of a popular question, one filler word longer, carrying "7 days" against the legitimate "30 days"), first-answer amplification (no store access: the attacker's question is asked first with a rigged wrong model answer, which the service caches on the miss and then serves to a victim's paraphrase), a broad plant competing with a specific legitimate entry, and a store overwrite (the same prompt re-stored with a phishing-flavoured answer). Nine boundary cases: one prompt, one critical token changed — negation added (long and short prompts), number word, entity, date, content word, verb, a subject/object role swap with an identical token multiset, and a two-token suffix ride-along. Each attack query names the wrong response that constitutes success and, where one exists, the legitimate response that would make the run "evaded" (hit, but the right entry won). Ten benign controls: four must-hit paraphrases, four must-miss unrelated questions, and two synonym paraphrases with almost no shared vocabulary, labelled must-hit on semantic grounds. Six deterministic mutations (negation insertion, number/entity/date swaps, drop-last, scramble) multiply eight base prompts into 30 generated variants — meaning-changing mutations as attacks, meaning-preserving ones as controls — stamped with a sha256 and regenerating byte-identically.</p>
+    <p><strong>Comparability slice.</strong> AgentDojo's scenario grammar (an agent, tools, a poisoned tool output) has no honest mapping onto a cache — there is no agent and no tool output; the "injection" is a stored entry and the victim is a later lookup. The recognised format that <em>does</em> match the failure mode is PAWS (paraphrase adversaries from word scrambling): pairs with near-total lexical overlap and opposite paraphrase labels. The slice is 16 hand-written pairs in that style — word swaps, negation, number/entity/date changes on one side; benign rewordings and two synonym-heavy paraphrases on the other — labelled honestly: PAWS-<em>style</em>, written for this repo, not the PAWS dataset. Prediction is the cache's own: hit ↔ paraphrase.</p>
+    <p><strong>Threshold probe.</strong> Similarity ladders: stored prompts of 6, 12 and 20 tokens, queries sharing exactly k tokens (the rest replaced from a disjoint vocabulary), plus an append ladder (a 12-token prompt + m arbitrary tokens). Then the whole seed-and-control set replayed through the service at thresholds 0.80, 0.85, 0.90, 0.95 and 0.99.</p>
+    <p><strong>Metrics.</strong> Frozen in <code>evals/scoring.py</code> v1, same class names as the sibling suites. An attack run is <strong>succeeded</strong> (the wrong response was served), <strong>blocked</strong> (both tiers missed; a fresh model call would be made), or <strong>evaded</strong> (a hit, but the legitimate entry's response was served — the pressure reached the cache and lost the best-match race <em>this time</em>). Benign runs are <strong>completed</strong>, <strong>false_hit</strong> or <strong>false_miss</strong>.</p>
+
+    <h2>Results</h2>
+    <h3>Suites</h3>
+    <div class="tbl"><table>
+      <tr><th>suite</th><th>attacks</th><th>blocked</th><th>succeeded</th><th>evaded</th><th>ASR</th><th>benign (n)</th><th>FHR</th><th>completion</th></tr>
+      <tr><td>seeds</td><td>17</td><td>2</td><td>13</td><td>2</td><td>76.5%</td><td>10</td><td>0.0%</td><td>80.0%</td></tr>
+      <tr><td>variants</td><td>14</td><td>1</td><td>13</td><td>0</td><td>92.9%</td><td>16</td><td>—</td><td>100.0%</td></tr>
+    </table></div>
+    <p>By family: poisoning 5/8 succeeded (2 evaded — the victims' <em>original</em> phrasings still hit the legitimate entry exactly; the poison took the paraphrases), boundary 8/9 succeeded. The two blocked runs are instructive: a genuinely reworded victim query too far from the planted entry, and the verb swap on a 6-token prompt (one token in six is 0.833 — the only boundary shape coarse enough to fall below 0.90).</p>
+    <h3>PAWS-style slice</h3>
+    <div class="tbl"><table>
+      <tr><th></th><th>predicted paraphrase</th><th>predicted not-paraphrase</th></tr>
+      <tr><td>actually paraphrase (8)</td><td>6</td><td>2 (both synonym-heavy)</td></tr>
+      <tr><td>actually not-paraphrase (8)</td><td>7</td><td>1 (the 6-token verb swap)</td></tr>
+    </table></div>
+    <p>Accuracy 43.8% — below the 50% of always answering one way, because the cache's errors are not random: it systematically accepts adversarial neighbours and rejects exactly the paraphrases that share no words.</p>
+    <h3>The ladders</h3>
+    <ul>
+      <li><strong>Overlap.</strong> A 6-token stored prompt hits only at 6/6 shared tokens (5/6 is 0.833). A 12-token prompt hits from 11/12 (0.929; 10/12 is 0.857). A 20-token prompt hits from 18/20 (0.914; 17/20 is 0.870). Between the last miss and the first hit there is <em>no attainable similarity value</em> at that length — the threshold's resolution is one token, and its width in similarity units is set by prompt length.</li>
+      <li><strong>Append.</strong> A 12-token prompt still hits with up to 3 arbitrary tokens appended (0.908); the 4th misses (0.882). Addition dilutes far more slowly than substitution — which is why negation (an addition) is the strongest attack shape measured.</li>
+      <li><strong>Collision floor.</strong> Two fully disjoint 20-token prompts score 0.0455, not 0: 256 hash slots collide, and the ladder's values deviate from exact token fractions by up to ~0.05 (11/12 shared measures 0.929, not 0.917).</li>
+    </ul>
+    <h3>Threshold sweep</h3>
+    <div class="tbl"><table>
+      <tr><th>threshold</th><th>ASR</th><th>block rate</th><th>FHR</th><th>benign completion</th></tr>
+      <tr><td>0.80</td><td>82.4%</td><td>5.9%</td><td>0.0%</td><td>80.0%</td></tr>
+      <tr><td>0.85</td><td>76.5%</td><td>11.8%</td><td>0.0%</td><td>80.0%</td></tr>
+      <tr><td>0.90</td><td>76.5%</td><td>11.8%</td><td>0.0%</td><td>80.0%</td></tr>
+      <tr><td>0.95</td><td>35.3%</td><td>52.9%</td><td>0.0%</td><td>70.0%</td></tr>
+      <tr><td>0.99</td><td>17.6%</td><td>70.6%</td><td>0.0%</td><td>60.0%</td></tr>
+    </table></div>
+
+    <h2>Findings</h2>
+    <ol>
+      <li><strong>One token is the whole ballgame at real question lengths.</strong> Negation, number, entity, date and content-word swaps on 11–12-token prompts score 0.909–0.966 and every one was served the original's answer (8/9 boundary seeds, 13/14 generated attack variants). The threshold was set "high on purpose, because a wrong cached answer is worse than a slow fresh one" — but at these lengths, one token <em>is</em> the distance between two different questions, and 0.90 is not above it.</li>
+      <li><strong>Negation is the closest attack, not the crudest.</strong> Adding "not" to the password question scores 0.9661 — higher than the honest one-word paraphrase (0.9286) the tier exists to catch. A token-overlap metric cannot price the word "not"; the negated question is, by the only ruler this cache has, <em>more</em> the same question than a genuine re-ask.</li>
+      <li><strong>Word order is invisible, and reversed roles score a perfect 1.000.</strong> "Does the warranty cover damage caused by the user" and "does the user cover damage caused by the warranty" have identical token multisets; so do the savings→current and current→savings transfer questions. Both swaps were served at similarity 1.0000 — the maximum the metric can express — with the meaning inverted.</li>
+      <li><strong>The cache amplifies a single bad answer, by design.</strong> The service stores whatever a miss returns. One wrong first generation about disputing a charge was served to a paraphrase at 0.9636 with no further model call, and nothing in the entry records that it was a first attempt rather than a vetted answer. TTL (24 h) is the only bound on the blast radius; within it, one hallucination is every similar asker's answer.</li>
+      <li><strong><code>/store</code> is an unauthenticated overwrite, and tier 1 never consults similarity.</strong> Re-storing an existing prompt replaces its answer (<code>INSERT OR REPLACE</code>) — the password-reset entry was rewritten to a phishing-flavoured instruction and served at tier 1. Whatever threat model the threshold serves, this path is outside it.</li>
+      <li><strong>Best-match is a race an attacker can enter for free.</strong> The superset plant (the legitimate question + "today") won the victim paraphrases that shared its extra token, 0.961 against the legitimate entry's ~0.92; the two runs the poison lost were the original phrasings, decided by tier 1 before similarity was consulted. The broad plant won on a tokenisation detail: a victim who typed "students" shares one fewer token with the "student discount" entry and landed on the plant's "50 percent off for everyone". Nobody needs to beat the legitimate entry by much — just by one token, on the phrasings that matter.</li>
+      <li><strong>The threshold is a coarser dial than its two decimals suggest.</strong> Attainable similarities are discrete (one token is the step), so 0.85 and 0.90 produce <em>identical outcomes on the entire suite</em>, and any value inside a step is theatre. Worse, the step's size depends on prompt length: the same one-token change is 0.833 on a 6-token prompt (blocked) and 0.909–0.931 on an 11–12-token prompt (served). "The threshold" is not one policy; it is a different policy per question length.</li>
+      <li><strong>No threshold setting fixes this suite.</strong> At 0.99, three successes remain — the overwrite and the verbatim plant (tier 1, no threshold involved) and the role swap (similarity 1.000). At 0.80, the only gain is admitting the 6-token verb swap; the two false misses sit at similarity 0.00 and 0.43, unreachable by any threshold a cache could use. Turning the dial moves the middle band only, at a measured price: completion 80% → 60% between 0.90 and 0.99.</li>
+      <li><strong>The zero false-hit rate is real and nearly irrelevant.</strong> Unrelated questions (quantum entanglement, sourdough) never false-hit, at any threshold — the day-6 eval's "must miss" set tests exactly this safe direction. Every actual failure came from the opposite direction: questions that <em>should</em> have missed by one token. A cache safety eval built from strangers measures the risk it doesn't have.</li>
+      <li><strong>The ruler itself is blurry.</strong> Fully disjoint 20-token prompts score 0.0455 from hash collisions alone, and crowded prompts deviate from their exact token-overlap fraction by up to ~0.05. Threshold decisions near a boundary are being made with a ruler whose markings move by half a step — a property of the 256-dimension stand-in, and a reminder that the measured ladder is this embedder's, not cosine's.</li>
+    </ol>
+
+    <h2>Limitations</h2>
+    <p>Everything ran on the <code>HashEmbedder</code> stand-in, whose "similarity" is weighted token overlap, and that bounds every number. The boundary results are therefore best read as a <em>shape</em>, not a forecast: a real embedding model prices meaning, so the synonym false misses (finding 8's unreachable pair) would largely close — but production embedding models are themselves notoriously weak on exactly the tokens this suite varies (negation, numbers, named entities, word order), so the boundary band does not obviously shrink; it moves, and only the real-backend slice can say where. The collision floor (finding 10) is an artefact of 256 hash slots and would not exist in a dense model. Samples are small (17 seed attack runs, 16 PAWS-style pairs) and hand-written by the cache's author; the mutation-generated variants (ASR 92.9%), the ladders and the sweep exist to show the seeds are not cherry-picked shapes. The poisoning cases model their attacker explicitly: the overwrite and plant cases use the <code>/store</code> API the service exposes without authentication, and the amplification case rigs the first model answer — it demonstrates what the cache does with a wrong first generation, not that a model will produce one on demand. Cases ran against in-memory tiers through the real service code; the deployed shape (file-backed SQLite, real traffic mix) would change rates, not mechanisms.</p>
+
+    <h2>Future work</h2>
+    <p>The real-embedder slice comes first: the identical suites through the <code># SWAP:</code> seam with a local sentence-transformers model, which converts the Limitations section from argument into measurement — the prediction this write-up stakes is that synonym completion rises sharply, boundary ASR falls but stays well above zero, and negation remains the strongest attack. Defence fixes follow as a separately measured phase, graded by these suites as regression tests: a critical-token check on semantic hits (if the query and the matched prompt differ in a negation, number, date or known entity token, treat as a miss regardless of cosine); provenance and caution for first-generation entries (a miss-store is a claim by one model call — sensitive topics could require a second, independent generation before the entry is servable); authentication and versioning on <code>/store</code>; and a length-aware threshold, since one threshold is secretly a different policy per prompt length. Any fix must move ASR, FHR and completion together — a cache that misses everything scores ASR 0% and is worthless, which is exactly why the three metrics are reported as one table.</p>
+
+    <h2>Reproducibility</h2>
+    <p>The project is public: <code>semantic-cache</code> under github.com/tushar29k. The variant generator stamps a sha256 over its bases and mutation source and regenerates byte-identically; <code>make_report.py</code> rebuilds <code>evals/adversarial-report.md</code> from fresh runs with no timestamps, so a diff in the report is a diff in the numbers; metric definitions are frozen in a versioned scoring module (<code>evals/scoring.py</code>, v1 — the same class names and metric shape as the sibling projects' adversarial suites, so the numbers sit side by side). The suites are report-only (the CI gate remains <code>tests/run_tests.py</code> plus <code>evals/run_evals.py</code>, both unchanged and green), every adversarial run appends to <code>evals/eval-history.jsonl</code>, and every finding above is logged in the repository, deliberately unfixed, so the fix phase can be graded against them.</p>
+    <p>Full note in the repo: <a href="https://github.com/tushar29k/semantic-cache/blob/main/RESEARCH.md" style="color:var(--teal);font-weight:600">semantic-cache/RESEARCH.md</a></p>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Tushar · Bounty rising — one commit at a time 🏴‍☠️</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
