@@ -23,13 +23,7 @@
   .article p strong { color: var(--text); }
   .backlink { display: inline-block; margin-bottom: 1.6rem; color: var(--teal); text-decoration: none; font-weight: 600; font-size: .92rem; }
   .backlink:hover { color: var(--cyan); }
-  .archive-list { list-style: none; margin-top: 1.6rem; }
-  .archive-list li { padding: 1.1rem 0; border-bottom: 1px solid var(--line); }
-  .archive-list li:first-child { padding-top: 0; }
-  .archive-list a { color: var(--teal); font-weight: 600; font-size: 1.05rem; text-decoration: none; }
-  .archive-list a:hover { color: var(--cyan); text-decoration: underline; }
-  .archive-list .meta { color: var(--muted); font-size: .82rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: .3rem; }
-  .archive-list p { margin: .35rem 0 0; font-size: .93rem; }
+  .notes-grid { margin-top: 1.8rem; }
 </style>
 </head>
 <body>
@@ -57,43 +51,57 @@
     <h1>Research notes</h1>
     <p>Adversarial evaluations of my own systems. Every note scores three frozen metrics — <strong>attack success rate</strong>, <strong>false-refusal rate</strong> and <strong>completion</strong> — and states its limitations plainly, mock-backend caveats included. Newest first; all seven notes are listed here.</p>
 
-    <ul class="archive-list">
-      <li>
-        <p class="meta">semantic-cache · 8 Nov 2026</p>
-        <a href="research-semantic-cache.html">Close enough to be wrong</a>
-        <p>The three-metric evaluation of a semantic cache's two-tier lookup: one-token changes sit at cosine 0.909–0.966, negation scores 0.9661 above the honest paraphrase, and no threshold fixes it — at 0.99 the overwrite, plant and role swap still succeed while completion falls 80% to 60%.</p>
-      </li>
-      <li>
-        <p class="meta">llm-evals · 7 Nov 2026</p>
-        <a href="research-llm-evals.html">The judge reads tokens</a>
-        <p>The three-metric evaluation of an eval toolkit's own scorers: 62.5% of seed attacks pass while half the honest answers fail, and judge-vs-human agreement collapses 0.917 to 0.200 — a wrong answer scores a perfect 1.000 through a smuggled CASE block.</p>
-      </li>
-      <li>
-        <p class="meta">deep-research-agent · 6 Nov 2026</p>
-        <a href="research-deep-research-agent.html">Citation is not truth</a>
-        <p>The three-metric evaluation of an extractive research pipeline: source-borne payloads succeed by construction (84.6% of seeds, 100% of variants) while citation accuracy stays 100% — because citations verify quotes, not claims.</p>
-      </li>
-      <li>
-        <p class="meta">voice-agent · 5 Nov 2026</p>
-        <a href="research-voice-agent.html">The gate is a vocabulary</a>
-        <p>The three-metric evaluation of a voice agent's spoken confirmation step: a six-pattern yes vocabulary books contradictory and third-party confirmations, refuses natural ones like “sounds good” (35.3% false-refusal rate), and lets a bystander's yes book — with 33 of 137 runs crashing on KeyError 'idle'.</p>
-      </li>
-      <li>
-        <p class="meta">support-agent · 4 Nov 2026</p>
-        <a href="research-support-agent.html">The gate held, the draft leaked</a>
-        <p>The three-metric evaluation of the support-agent's safety layers: zero unauthorised refunds across 171 attack runs, poisoned-KB quoting as the open channel, and a 31.2% false-refusal rate from the refund-keyword bug shape.</p>
-      </li>
-      <li>
-        <p class="meta">rag-service · 3 Nov 2026</p>
-        <a href="research-rag.html">Retrieval is not a safety boundary</a>
-        <p>The poisoned-corpus and unsupported-question benchmark of the rag-service pipeline, scored on attack success, fabrication, false refusal and completion.</p>
-      </li>
-      <li>
-        <p class="meta">agent-service + sql-agent · 3 Nov 2026</p>
-        <a href="research.html">How pattern-based guardrails fail</a>
-        <p>The mutation-based adversarial benchmark of the agent-service detector (Pattern Guardrails Under Mutation), scored on attack success, false refusal and completion — encoded payloads blocked 0 of 24 runs per class.</p>
-      </li>
-    </ul>
+</div>
+  <div class="grid notes-grid">
+    <div class="card visible">
+      <div class="card-top"><span class="rank" style="color:#22D3EE">01</span><h3><a class="card-title-link" href="research-semantic-cache.html">Close enough to be wrong</a></h3><span class="spacer"></span></div>
+      <p>The three-metric evaluation of a semantic cache's two-tier lookup: one-token changes sit at cosine 0.909–0.966, negation scores 0.9661 above the honest paraphrase, and no threshold fixes it.</p>
+      <div class="topics"><span>cosine 0.9661</span><span>ASR 76.5%</span></div>
+      <div class="card-meta"><span class="dot" style="background:#A78BFA"></span>semantic-cache · 8 Nov 2026</div>
+      <div class="card-links"><a class="mini-btn live" href="research-semantic-cache.html">Read note ↗</a></div>
+    </div>
+    <div class="card visible">
+      <div class="card-top"><span class="rank" style="color:#2DD4BF">02</span><h3><a class="card-title-link" href="research-llm-evals.html">The judge reads tokens</a></h3><span class="spacer"></span></div>
+      <p>The three-metric evaluation of an eval toolkit's own scorers: 62.5% of seed attacks pass while half the honest answers fail, and judge-vs-human agreement collapses 0.917 to 0.200.</p>
+      <div class="topics"><span>agreement 0.200</span><span>score 1.000 exploit</span></div>
+      <div class="card-meta"><span class="dot" style="background:#A78BFA"></span>llm-evals · 7 Nov 2026</div>
+      <div class="card-links"><a class="mini-btn live" href="research-llm-evals.html">Read note ↗</a></div>
+    </div>
+    <div class="card visible">
+      <div class="card-top"><span class="rank" style="color:#A78BFA">03</span><h3><a class="card-title-link" href="research-deep-research-agent.html">Citation is not truth</a></h3><span class="spacer"></span></div>
+      <p>The three-metric evaluation of an extractive research pipeline: source-borne payloads succeed by construction (84.6% of seeds, 100% of variants) while citation accuracy stays 100% — citations verify quotes, not claims.</p>
+      <div class="topics"><span>84.6% seed ASR</span><span>citations 100%</span></div>
+      <div class="card-meta"><span class="dot" style="background:#A78BFA"></span>deep-research-agent · 6 Nov 2026</div>
+      <div class="card-links"><a class="mini-btn live" href="research-deep-research-agent.html">Read note ↗</a></div>
+    </div>
+    <div class="card visible">
+      <div class="card-top"><span class="rank" style="color:#F472B6">04</span><h3><a class="card-title-link" href="research-voice-agent.html">The gate is a vocabulary</a></h3><span class="spacer"></span></div>
+      <p>The three-metric evaluation of a voice agent's spoken confirmation step: a six-pattern yes vocabulary books contradictory and third-party confirmations, and refuses natural ones like “sounds good”.</p>
+      <div class="topics"><span>35.3% false refusal</span><span>137 runs</span></div>
+      <div class="card-meta"><span class="dot" style="background:#A78BFA"></span>voice-agent · 5 Nov 2026</div>
+      <div class="card-links"><a class="mini-btn live" href="research-voice-agent.html">Read note ↗</a></div>
+    </div>
+    <div class="card visible">
+      <div class="card-top"><span class="rank" style="color:#22D3EE">05</span><h3><a class="card-title-link" href="research-support-agent.html">The gate held, the draft leaked</a></h3><span class="spacer"></span></div>
+      <p>The three-metric evaluation of the support-agent's safety layers: zero unauthorised refunds across 171 attack runs, poisoned-KB quoting as the open channel, and a 31.2% false-refusal rate.</p>
+      <div class="topics"><span>0 unauthorised refunds</span><span>171 runs</span></div>
+      <div class="card-meta"><span class="dot" style="background:#A78BFA"></span>support-agent · 4 Nov 2026</div>
+      <div class="card-links"><a class="mini-btn live" href="research-support-agent.html">Read note ↗</a></div>
+    </div>
+    <div class="card visible">
+      <div class="card-top"><span class="rank" style="color:#2DD4BF">06</span><h3><a class="card-title-link" href="research-rag.html">Retrieval is not a safety boundary</a></h3><span class="spacer"></span></div>
+      <p>The poisoned-corpus and unsupported-question benchmark of the rag-service pipeline, scored on attack success, fabrication, false refusal and completion.</p>
+      <div class="topics"><span>ASR 80.6%</span><span>fabrication 83.3%</span></div>
+      <div class="card-meta"><span class="dot" style="background:#A78BFA"></span>rag-service · 3 Nov 2026</div>
+      <div class="card-links"><a class="mini-btn live" href="research-rag.html">Read note ↗</a></div>
+    </div>
+    <div class="card visible">
+      <div class="card-top"><span class="rank" style="color:#A78BFA">07</span><h3><a class="card-title-link" href="research.html">How pattern-based guardrails fail</a></h3><span class="spacer"></span></div>
+      <p>The mutation-based adversarial benchmark of the agent-service detector (Pattern Guardrails Under Mutation), scored on attack success, false refusal and completion — encoded payloads blocked 0 of 24 runs per class.</p>
+      <div class="topics"><span>0/24 encoded blocked</span><span>mutation benchmark</span></div>
+      <div class="card-meta"><span class="dot" style="background:#A78BFA"></span>agent-service + sql-agent · 3 Nov 2026</div>
+      <div class="card-links"><a class="mini-btn live" href="research.html">Read note ↗</a></div>
+    </div>
   </div>
 </section>
 
