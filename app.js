@@ -15,6 +15,7 @@
   var ri = 0, ci = 0, deleting = false;
 
   function tick() {
+    if (!typedEl) return; /* research pages load this file without a hero */
     var word = roles[ri];
     typedEl.textContent = word.slice(0, ci);
     var speed = deleting ? 35 : 70;
@@ -188,7 +189,10 @@
       }
     });
   }, { threshold: 0.05 });
-  pio.observe(document.getElementById('project-grid'));
+  var featGridEl = document.getElementById('project-grid');
+  if (featGridEl) pio.observe(featGridEl);
+  var allGridEl = document.getElementById('all-project-grid');
+  if (allGridEl) pio.observe(allGridEl);
 
   /* section header underline animation */
   var hio = new IntersectionObserver(function (entries) {
@@ -233,20 +237,24 @@
   /* ---------- subtle 3D tilt on project cards (fine pointers, motion-safe) ---------- */
   var motionOK = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (window.matchMedia('(pointer:fine)').matches && motionOK) {
-    var grid = document.getElementById('project-grid');
-    grid.addEventListener('pointermove', function (e) {
-      var card = e.target.closest('.card');
-      if (!card || !card.classList.contains('visible')) return;
-      var r = card.getBoundingClientRect();
-      var px = (e.clientX - r.left) / r.width - 0.5;
-      var py = (e.clientY - r.top) / r.height - 0.5;
-      card.style.transform = 'perspective(900px) rotateX(' + (-py * 5).toFixed(2) +
-        'deg) rotateY(' + (px * 5).toFixed(2) + 'deg) translateY(-4px)';
-    });
-    grid.addEventListener('pointerout', function (e) {
-      var card = e.target.closest('.card');
-      if (card && !card.contains(e.relatedTarget)) card.style.transform = '';
-    });
+    var attachTilt = function (gridEl) {
+      if (!gridEl) return;
+      gridEl.addEventListener('pointermove', function (e) {
+        var card = e.target.closest('.card');
+        if (!card || !card.classList.contains('visible')) return;
+        var r = card.getBoundingClientRect();
+        var px = (e.clientX - r.left) / r.width - 0.5;
+        var py = (e.clientY - r.top) / r.height - 0.5;
+        card.style.transform = 'perspective(900px) rotateX(' + (-py * 5).toFixed(2) +
+          'deg) rotateY(' + (px * 5).toFixed(2) + 'deg) translateY(-4px)';
+      });
+      gridEl.addEventListener('pointerout', function (e) {
+        var card = e.target.closest('.card');
+        if (card && !card.contains(e.relatedTarget)) card.style.transform = '';
+      });
+    };
+    attachTilt(document.getElementById('project-grid'));
+    attachTilt(document.getElementById('all-project-grid'));
   }
 
   /* ---------- live GitHub data ---------- */
@@ -292,41 +300,105 @@
     });
   }
 
+  /* the four flagships shown by default, in this order; everything else
+     renders into the "all projects" expander below */
+  var FEATURED = ['pr-review-agent', 'rag-service', 'agent-service', 'llm-service'];
+
+  function makeCard(r, idx) {
+    var color = LANG_COLORS[r.language] || '#8b98a9';
+    var accent = ACCENTS[idx % ACCENTS.length];
+    var topics = (r.topics || []).slice(0, 4).map(function (t) {
+      return '<span>' + esc(t) + '</span>';
+    }).join('');
+    var a = document.createElement('div');
+    a.className = 'card';
+    a.style.setProperty('--accent', accent);
+    var desc = BLURB[r.name] || r.description || 'Open-source AI project.';
+    var demoUrl = DEMO[r.name];
+    var demoBtn = demoUrl
+      ? '<a class="mini-btn live" href="' + esc(demoUrl) + '" target="_blank" rel="noopener">Live demo ↗</a>'
+      : '<span class="mini-btn soon">Live demo · soon</span>';
+    a.innerHTML =
+      '<div class="card-top"><span class="rank" style="color:' + accent + '">' + ('0' + (idx + 1)).slice(-2) + '</span>' +
+      '<h3><a class="card-title-link" href="' + esc(r.html_url) + '" target="_blank" rel="noopener">' + esc(r.name) + '</a></h3><span class="spacer"></span>' +
+      '<span class="stars">★ ' + r.stargazers_count + '</span></div>' +
+      '<p>' + esc(desc) + '</p>' +
+      (topics ? '<div class="topics">' + topics + '</div>' : '') +
+      '<div class="card-meta"><span class="dot" style="background:' + color + '"></span>' +
+      esc(r.language || 'Code') + '</div>' +
+      '<div class="card-links"><a class="mini-btn" href="' + esc(r.html_url) + '" target="_blank" rel="noopener">Repo ↗</a>' +
+      demoBtn + '</div>';
+    io.observe(a);
+    return a;
+  }
+
   function renderProjects(repos) {
     var grid = document.getElementById('project-grid');
+    if (!grid) return; /* research pages share this file but have no grids */
+    var allGrid = document.getElementById('all-project-grid');
+    var byName = {};
+    repos.forEach(function (r) { byName[r.name] = r; });
+    var featured = [];
+    FEATURED.forEach(function (n) { if (byName[n]) featured.push(byName[n]); });
+    var rest = repos.filter(function (r) { return FEATURED.indexOf(r.name) === -1; });
+    /* if none of the flagships came back, show the first four of whatever did */
+    if (!featured.length) { featured = rest.slice(0, 4); rest = rest.slice(4); }
+
     grid.innerHTML = '';
-    repos.forEach(function (r, idx) {
-      var color = LANG_COLORS[r.language] || '#8b98a9';
-      var accent = ACCENTS[idx % ACCENTS.length];
-      var topics = (r.topics || []).slice(0, 4).map(function (t) {
-        return '<span>' + esc(t) + '</span>';
-      }).join('');
-      var a = document.createElement('div');
-      a.className = 'card';
-      a.style.setProperty('--accent', accent);
-      var desc = BLURB[r.name] || r.description || 'Open-source AI project.';
-      var demoUrl = DEMO[r.name];
-      var demoBtn = demoUrl
-        ? '<a class="mini-btn live" href="' + esc(demoUrl) + '" target="_blank" rel="noopener">Live demo ↗</a>'
-        : '<span class="mini-btn soon">Live demo · soon</span>';
-      a.innerHTML =
-        '<div class="card-top"><span class="rank" style="color:' + accent + '">' + ('0' + (idx + 1)).slice(-2) + '</span>' +
-        '<h3><a class="card-title-link" href="' + esc(r.html_url) + '" target="_blank" rel="noopener">' + esc(r.name) + '</a></h3><span class="spacer"></span>' +
-        '<span class="stars">★ ' + r.stargazers_count + '</span></div>' +
-        '<p>' + esc(desc) + '</p>' +
-        (topics ? '<div class="topics">' + topics + '</div>' : '') +
-        '<div class="card-meta"><span class="dot" style="background:' + color + '"></span>' +
-        esc(r.language || 'Code') + '</div>' +
-        '<div class="card-links"><a class="mini-btn" href="' + esc(r.html_url) + '" target="_blank" rel="noopener">Repo ↗</a>' +
-        demoBtn + '</div>';
-      grid.appendChild(a);
-      io.observe(a);
+    featured.forEach(function (r, idx) { grid.appendChild(makeCard(r, idx)); });
+
+    if (allGrid) {
+      allGrid.innerHTML = '';
+      rest.forEach(function (r, idx) { allGrid.appendChild(makeCard(r, featured.length + idx)); });
+      var countEl = document.getElementById('all-projects-count');
+      if (countEl) countEl.textContent = rest.length + (rest.length === 1 ? ' more project' : ' more projects');
+      var toggleEl = document.getElementById('all-projects-toggle');
+      if (toggleEl && !rest.length) toggleEl.style.display = 'none';
+    }
+  }
+
+  /* ---------- progressive disclosure: expanders + project search ---------- */
+  function wireToggle(btnId, regionId, labels) {
+    var btn = document.getElementById(btnId);
+    var region = document.getElementById(regionId);
+    if (!btn || !region) return;
+    var label = btn.querySelector('.toggle-label');
+    btn.addEventListener('click', function () {
+      var open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!open));
+      region.hidden = open;
+      if (label) label.textContent = open ? labels[0] : labels[1];
+    });
+  }
+  wireToggle('all-projects-toggle', 'all-projects-region', ['Show all projects', 'Hide all projects']);
+  wireToggle('research-toggle', 'all-research-region', ['Show all 7 research notes', 'Hide research notes']);
+
+  var searchEl = document.getElementById('project-search');
+  if (searchEl) {
+    searchEl.addEventListener('input', function () {
+      var q = searchEl.value.trim().toLowerCase();
+      var gridEl = document.getElementById('all-project-grid');
+      if (!gridEl) return;
+      var shown = 0;
+      Array.prototype.forEach.call(gridEl.children, function (card) {
+        var hit = !q || card.textContent.toLowerCase().indexOf(q) !== -1;
+        card.style.display = hit ? '' : 'none';
+        if (hit) shown++;
+      });
+      var emptyEl = document.getElementById('all-projects-empty');
+      if (emptyEl) emptyEl.hidden = shown !== 0;
+      var countEl2 = document.getElementById('all-projects-count');
+      if (countEl2) {
+        var total = gridEl.children.length;
+        countEl2.textContent = q ? (shown + ' of ' + total + ' more projects') : (total + (total === 1 ? ' more project' : ' more projects'));
+      }
     });
   }
 
   /* count-up animation for pure-number stats */
   function setStat(id, val) {
     var el = document.getElementById(id);
+    if (!el) return;
     if (!/^\d+$/.test(val)) { el.textContent = val; return; }
     var target = parseInt(val, 10);
     var start = null;
@@ -354,10 +426,7 @@
     .then(function (repos) {
       // hide the portfolio site repo itself: it is not a project, just the frame
       var mine = repos.filter(function (r) { return !r.fork && r.name !== USER && r.name !== USER + '.github.io'; });
-      // keep the four flagships first, in a fixed order; the rest go after
-      var order = ['rag-service', 'agent-service', 'llm-service', 'pr-review-agent'];
-      function rank(n) { var i = order.indexOf(n); return i === -1 ? order.length : i; }
-      mine.sort(function (a, b) { return rank(a.name) - rank(b.name); });
+      // renderProjects splits the flagships (FEATURED) from the rest
       renderProjects(mine.length ? mine : FALLBACK);
       setStat('st-repos', String(mine.length || FALLBACK.length));
     })

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Research Notes — Tushar</title>
+<meta name="description" content="All of Tushar's adversarial-evaluation research notes: every system scored on attack success, false refusal and completion, with limitations stated plainly." />
+<meta property="og:title" content="Research Notes — Tushar" />
+<meta property="og:description" content="Adversarial evaluations of production-shaped AI systems — three-metric scoring, limitations stated plainly." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://tushar29k.github.io/research-archive.html" />
+<meta property="og:image" content="https://raw.githubusercontent.com/tushar29k/tushar29k/main/assets/banner.webp" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M21 20.5A9 9 0 1 1 11.5 3 7 7 0 0 0 21 20.5z' fill='%2322D3EE'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+  .article { max-width: 860px; margin: 0 auto; position: relative; z-index: 2; }
+  .article h1 { font-size: 2rem; line-height: 1.25; margin-bottom: 1.2rem; }
+  .article p { color: var(--muted); margin-bottom: 1rem; }
+  .article p strong { color: var(--text); }
+  .backlink { display: inline-block; margin-bottom: 1.6rem; color: var(--teal); text-decoration: none; font-weight: 600; font-size: .92rem; }
+  .backlink:hover { color: var(--cyan); }
+  .archive-list { list-style: none; margin-top: 1.6rem; }
+  .archive-list li { padding: 1.1rem 0; border-bottom: 1px solid var(--line); }
+  .archive-list li:first-child { padding-top: 0; }
+  .archive-list a { color: var(--teal); font-weight: 600; font-size: 1.05rem; text-decoration: none; }
+  .archive-list a:hover { color: var(--cyan); text-decoration: underline; }
+  .archive-list .meta { color: var(--muted); font-size: .82rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: .3rem; }
+  .archive-list p { margin: .35rem 0 0; font-size: .93rem; }
+</style>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<div id="progress" aria-hidden="true"></div>
+<div class="orb orb-a" aria-hidden="true"></div>
+<div class="orb orb-b" aria-hidden="true"></div>
+<div class="orb orb-c" aria-hidden="true"></div>
+
+<nav class="nav">
+  <a class="brand" href="index.html">tushar<span>.dev</span></a>
+  <div class="links">
+    <a href="index.html#projects">Projects</a>
+    <a href="research-archive.html">Research</a>
+    <a href="index.html#stack">Stack</a>
+    <a href="index.html#experience">Experience</a>
+    <a href="index.html#about">About</a>
+    <a href="index.html#contact" class="cta">Contact</a>
+  </div>
+</nav>
+
+<section class="section">
+  <div class="article">
+    <a class="backlink" href="index.html#projects">← Back to projects</a>
+    <h1>Research notes</h1>
+    <p>Adversarial evaluations of my own systems. Every note scores three frozen metrics — <strong>attack success rate</strong>, <strong>false-refusal rate</strong> and <strong>completion</strong> — and states its limitations plainly, mock-backend caveats included. Newest first; all seven notes are listed here.</p>
+
+    <ul class="archive-list">
+      <li>
+        <p class="meta">semantic-cache · 8 Nov 2026</p>
+        <a href="research-semantic-cache.html">Close enough to be wrong</a>
+        <p>The three-metric evaluation of a semantic cache's two-tier lookup: one-token changes sit at cosine 0.909–0.966, negation scores 0.9661 above the honest paraphrase, and no threshold fixes it — at 0.99 the overwrite, plant and role swap still succeed while completion falls 80% to 60%.</p>
+      </li>
+      <li>
+        <p class="meta">llm-evals · 7 Nov 2026</p>
+        <a href="research-llm-evals.html">The judge reads tokens</a>
+        <p>The three-metric evaluation of an eval toolkit's own scorers: 62.5% of seed attacks pass while half the honest answers fail, and judge-vs-human agreement collapses 0.917 to 0.200 — a wrong answer scores a perfect 1.000 through a smuggled CASE block.</p>
+      </li>
+      <li>
+        <p class="meta">deep-research-agent · 6 Nov 2026</p>
+        <a href="research-deep-research-agent.html">Citation is not truth</a>
+        <p>The three-metric evaluation of an extractive research pipeline: source-borne payloads succeed by construction (84.6% of seeds, 100% of variants) while citation accuracy stays 100% — because citations verify quotes, not claims.</p>
+      </li>
+      <li>
+        <p class="meta">voice-agent · 5 Nov 2026</p>
+        <a href="research-voice-agent.html">The gate is a vocabulary</a>
+        <p>The three-metric evaluation of a voice agent's spoken confirmation step: a six-pattern yes vocabulary books contradictory and third-party confirmations, refuses natural ones like “sounds good” (35.3% false-refusal rate), and lets a bystander's yes book — with 33 of 137 runs crashing on KeyError 'idle'.</p>
+      </li>
+      <li>
+        <p class="meta">support-agent · 4 Nov 2026</p>
+        <a href="research-support-agent.html">The gate held, the draft leaked</a>
+        <p>The three-metric evaluation of the support-agent's safety layers: zero unauthorised refunds across 171 attack runs, poisoned-KB quoting as the open channel, and a 31.2% false-refusal rate from the refund-keyword bug shape.</p>
+      </li>
+      <li>
+        <p class="meta">rag-service · 3 Nov 2026</p>
+        <a href="research-rag.html">Retrieval is not a safety boundary</a>
+        <p>The poisoned-corpus and unsupported-question benchmark of the rag-service pipeline, scored on attack success, fabrication, false refusal and completion.</p>
+      </li>
+      <li>
+        <p class="meta">agent-service + sql-agent · 3 Nov 2026</p>
+        <a href="research.html">How pattern-based guardrails fail</a>
+        <p>The mutation-based adversarial benchmark of the agent-service detector (Pattern Guardrails Under Mutation), scored on attack success, false refusal and completion — encoded payloads blocked 0 of 24 runs per class.</p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Tushar · Bounty rising — one commit at a time 🏴‍☠️</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
