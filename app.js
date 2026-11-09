@@ -371,7 +371,7 @@
     });
   }
   wireToggle('all-projects-toggle', 'all-projects-region', ['Show all projects', 'Hide all projects']);
-  wireToggle('research-toggle', 'all-research-region', ['Show all 7 research notes', 'Hide research notes']);
+  wireToggle('research-toggle', 'all-research-region', ['Show all 8 research notes', 'Hide research notes']);
 
   var searchEl = document.getElementById('project-search');
   if (searchEl) {

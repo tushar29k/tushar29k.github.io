@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=20261108-3" />
+<link rel="stylesheet" href="styles.css?v=20261109-1" />
 <style>
   .article { max-width: 860px; margin: 0 auto; position: relative; z-index: 2; }
   .article h1 { font-size: 2rem; line-height: 1.25; margin-bottom: 1.2rem; }
@@ -49,54 +49,61 @@
   <div class="article">
     <a class="backlink" href="index.html#projects">← Back to projects</a>
     <h1>Research notes</h1>
-    <p>Adversarial evaluations of my own systems. Every note scores three frozen metrics — <strong>attack success rate</strong>, <strong>false-refusal rate</strong> and <strong>completion</strong> — and states its limitations plainly, mock-backend caveats included. Newest first; all seven notes are listed here.</p>
+    <p>Adversarial evaluations of my own systems. Every note scores three frozen metrics — <strong>attack success rate</strong>, <strong>false-refusal rate</strong> and <strong>completion</strong> — and states its limitations plainly, mock-backend caveats included. Newest first; all eight notes are listed here.</p>
 
 </div>
   <div class="grid notes-grid">
     <div class="card visible">
-      <div class="card-top"><span class="rank" style="color:#22D3EE">01</span><h3><a class="card-title-link" href="research-semantic-cache.html">Close enough to be wrong</a></h3><span class="spacer"></span></div>
+      <div class="card-top"><span class="rank" style="color:#22D3EE">01</span><h3><a class="card-title-link" href="research-tiny-ml-compiler.html">The compiler trusts the graph</a></h3><span class="spacer"></span></div>
+      <p>The three-metric evaluation of a toy tensor-graph compiler: the passes diverge on 0 of 240 graphs, codegen errors or diverges on 152 of 240 under list feeds, and there is no validation phase at all.</p>
+      <div class="topics"><span>152/240 codegen</span><span>ASR 71.4%</span></div>
+      <div class="card-meta"><span class="dot" style="background:#A78BFA"></span>tiny-ml-compiler · 9 Nov 2026</div>
+      <div class="card-links"><a class="mini-btn live" href="research-tiny-ml-compiler.html">Read note ↗</a></div>
+    </div>
+    <div class="card visible">
+      <div class="card-top"><span class="rank" style="color:#2DD4BF">02</span><h3><a class="card-title-link" href="research-semantic-cache.html">Close enough to be wrong</a></h3><span class="spacer"></span></div>
       <p>The three-metric evaluation of a semantic cache's two-tier lookup: one-token changes sit at cosine 0.909–0.966, negation scores 0.9661 above the honest paraphrase, and no threshold fixes it.</p>
       <div class="topics"><span>cosine 0.9661</span><span>ASR 76.5%</span></div>
       <div class="card-meta"><span class="dot" style="background:#A78BFA"></span>semantic-cache · 8 Nov 2026</div>
       <div class="card-links"><a class="mini-btn live" href="research-semantic-cache.html">Read note ↗</a></div>
     </div>
     <div class="card visible">
-      <div class="card-top"><span class="rank" style="color:#2DD4BF">02</span><h3><a class="card-title-link" href="research-llm-evals.html">The judge reads tokens</a></h3><span class="spacer"></span></div>
+      <div class="card-top"><span class="rank" style="color:#A78BFA">03</span><h3><a class="card-title-link" href="research-llm-evals.html">The judge reads tokens</a></h3><span class="spacer"></span></div>
       <p>The three-metric evaluation of an eval toolkit's own scorers: 62.5% of seed attacks pass while half the honest answers fail, and judge-vs-human agreement collapses 0.917 to 0.200.</p>
       <div class="topics"><span>agreement 0.200</span><span>score 1.000 exploit</span></div>
       <div class="card-meta"><span class="dot" style="background:#A78BFA"></span>llm-evals · 7 Nov 2026</div>
       <div class="card-links"><a class="mini-btn live" href="research-llm-evals.html">Read note ↗</a></div>
     </div>
     <div class="card visible">
-      <div class="card-top"><span class="rank" style="color:#A78BFA">03</span><h3><a class="card-title-link" href="research-deep-research-agent.html">Citation is not truth</a></h3><span class="spacer"></span></div>
+      <div class="card-top"><span class="rank" style="color:#F472B6">04</span><h3><a class="card-title-link" href="research-deep-research-agent.html">Citation is not truth</a></h3><span class="spacer"></span></div>
       <p>The three-metric evaluation of an extractive research pipeline: source-borne payloads succeed by construction (84.6% of seeds, 100% of variants) while citation accuracy stays 100% — citations verify quotes, not claims.</p>
       <div class="topics"><span>84.6% seed ASR</span><span>citations 100%</span></div>
       <div class="card-meta"><span class="dot" style="background:#A78BFA"></span>deep-research-agent · 6 Nov 2026</div>
       <div class="card-links"><a class="mini-btn live" href="research-deep-research-agent.html">Read note ↗</a></div>
     </div>
     <div class="card visible">
-      <div class="card-top"><span class="rank" style="color:#F472B6">04</span><h3><a class="card-title-link" href="research-voice-agent.html">The gate is a vocabulary</a></h3><span class="spacer"></span></div>
+      <div class="card-top"><span class="rank" style="color:#22D3EE">05</span><h3><a class="card-title-link" href="research-voice-agent.html">The gate is a vocabulary</a></h3><span class="spacer"></span></div>
       <p>The three-metric evaluation of a voice agent's spoken confirmation step: a six-pattern yes vocabulary books contradictory and third-party confirmations, and refuses natural ones like “sounds good”.</p>
       <div class="topics"><span>35.3% false refusal</span><span>137 runs</span></div>
       <div class="card-meta"><span class="dot" style="background:#A78BFA"></span>voice-agent · 5 Nov 2026</div>
       <div class="card-links"><a class="mini-btn live" href="research-voice-agent.html">Read note ↗</a></div>
     </div>
     <div class="card visible">
-      <div class="card-top"><span class="rank" style="color:#22D3EE">05</span><h3><a class="card-title-link" href="research-support-agent.html">The gate held, the draft leaked</a></h3><span class="spacer"></span></div>
+      <div class="card-top"><span class="rank" style="color:#2DD4BF">06</span><h3><a class="card-title-link" href="research-support-agent.html">The gate held, the draft leaked</a></h3><span class="spacer"></span></div>
       <p>The three-metric evaluation of the support-agent's safety layers: zero unauthorised refunds across 171 attack runs, poisoned-KB quoting as the open channel, and a 31.2% false-refusal rate.</p>
       <div class="topics"><span>0 unauthorised refunds</span><span>171 runs</span></div>
       <div class="card-meta"><span class="dot" style="background:#A78BFA"></span>support-agent · 4 Nov 2026</div>
       <div class="card-links"><a class="mini-btn live" href="research-support-agent.html">Read note ↗</a></div>
     </div>
     <div class="card visible">
-      <div class="card-top"><span class="rank" style="color:#2DD4BF">06</span><h3><a class="card-title-link" href="research-rag.html">Retrieval is not a safety boundary</a></h3><span class="spacer"></span></div>
+      <div class="card-top"><span class="rank" style="color:#A78BFA">07</span><h3><a class="card-title-link" href="research-rag.html">Retrieval is not a safety boundary</a></h3><span class="spacer"></span></div>
       <p>The poisoned-corpus and unsupported-question benchmark of the rag-service pipeline, scored on attack success, fabrication, false refusal and completion.</p>
       <div class="topics"><span>ASR 80.6%</span><span>fabrication 83.3%</span></div>
       <div class="card-meta"><span class="dot" style="background:#A78BFA"></span>rag-service · 3 Nov 2026</div>
       <div class="card-links"><a class="mini-btn live" href="research-rag.html">Read note ↗</a></div>
     </div>
     <div class="card visible">
-      <div class="card-top"><span class="rank" style="color:#A78BFA">07</span><h3><a class="card-title-link" href="research.html">How pattern-based guardrails fail</a></h3><span class="spacer"></span></div>
+      <div class="card-top"><span class="rank" style="color:#F472B6">08</span><h3><a class="card-title-link" href="research.html">How pattern-based guardrails fail</a></h3><span class="spacer"></span></div>
       <p>The mutation-based adversarial benchmark of the agent-service detector (Pattern Guardrails Under Mutation), scored on attack success, false refusal and completion — encoded payloads blocked 0 of 24 runs per class.</p>
       <div class="topics"><span>0/24 encoded blocked</span><span>mutation benchmark</span></div>
       <div class="card-meta"><span class="dot" style="background:#A78BFA"></span>agent-service + sql-agent · 3 Nov 2026</div>
@@ -109,6 +116,6 @@
   <p>© 2026 Tushar · Bounty rising — one commit at a time 🏴‍☠️</p>
 </footer>
 
-<script src="app.js?v=20261108-3"></script>
+<script src="app.js?v=20261109-1"></script>
 </body>
 </html>
